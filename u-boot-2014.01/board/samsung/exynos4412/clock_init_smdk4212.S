@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2011 Samsung Electronics Co. Ltd
  *
- * See file CREDITS for list of people who contributed to this
+ * See file CREDITS for list of people who contributed to thisELFIN_CLOCK_BASE
  * project.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -56,7 +56,7 @@ check_2GB_DRAM:
 system_clock_init:
 	push	{lr}
 	
-	ldr	r0, =ELFIN_CLOCK_BASE	@0x1003_0000
+	ldr	r0, =EXYNOS4X12_CLOCK_BASE	@0x1003_0000
 
 @ CMU_CPU MUX / DIV
 	ldr	r1, =0x0
@@ -241,7 +241,7 @@ skip_mpll:
 	bne	v310_2
 
 	/* check C2C_CTRL enable bit */
-	ldr r3, =S5PV310_POWER_BASE
+	ldr r3, =EXYNOS4X12_POWER_BASE
 	ldr r1, [r3, #C2C_CTRL_OFFSET]
 	and r1, r1, #1
 	cmp r1, #0

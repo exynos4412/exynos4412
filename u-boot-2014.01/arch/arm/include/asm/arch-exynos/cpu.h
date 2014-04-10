@@ -76,6 +76,7 @@
 #define INF_REG6_OFFSET			0x18
 #define INF_REG7_OFFSET			0x1c
 #define C2C_CTRL_OFFSET			0x24
+#define GENERAL_CTRL_C2C_OFFSET	0x10C
 #endif
 /*
  *EXYNOS4X12 Clocks Regs
