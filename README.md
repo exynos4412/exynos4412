@@ -7,3 +7,5 @@ exynos4412 project
 	add for test
 2014.04.10 zxl
 	add for test
+2014.04.10 zxl
+	add for test snd!
