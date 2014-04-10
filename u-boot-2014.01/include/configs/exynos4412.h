@@ -33,20 +33,49 @@
 
 /* Keep L2 Cache Disabled */
 #define CONFIG_SYS_L2CACHE_OFF		1
+/* Disable I-Cache, D-Cache must */
+#undef CONFIG_SYS_ICACHE_OFF  //enable I-Cache
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define CONFIG_SYS_TEXT_BASE        0xc3e00000   //add for check code relocate
-
+#define USE_2G_DRAM
 /* input clock of PLL: Universal has 24MHz input clock at EXYNOS4210 */
 #define CONFIG_SYS_CLK_FREQ_C210	24000000
 #define CONFIG_SYS_CLK_FREQ		CONFIG_SYS_CLK_FREQ_C210
+/* APLL : 800MHz */
+//#define CONFIG_CLK_ARM_800_APLL_800
+/* APLL : 1GHz */
+#define CONFIG_CLK_ARM_1000_APLL_1000
+/* APLL : 1.1GHz */
+//#define CONFIG_CLK_ARM_1200_APLL_1100
+/* APLL : 1.2GHz */
+//#define CONFIG_CLK_ARM_1200_APLL_1200
+/* APLL : 1.3GHz */
+//#define CONFIG_CLK_ARM_1200_APLL_1300
+/* APLL : 1.4GHz */
+//#define CONFIG_CLK_ARM_1200_APLL_1400
+/* APLL : 1.5GHz */
+//#define CONFIG_CLK_ARM_1500_APLL_1500
+#ifdef CONFIG_EXYNOS4412_EVT2
+/* bus clock: 220Mhz, DMC clock 440Mhz */
+#define CONFIG_CLK_BUS_DMC_220_440
+#else
+/* bus clock: 100Mhz, DMC clock 200Mhz */
+//#define CONFIG_CLK_BUS_DMC_100_200
+/* bus clock: 165Mhz, DMC clock 330Mhz */
+//#define CONFIG_CLK_BUS_DMC_165_330
+/* bus clock: 200Mhz, DMC clock 400Mhz */
+#define CONFIG_CLK_BUS_DMC_200_400
+/* bus clock: 220Mhz, DMC clock 440Mhz */
+//#define CONFIG_CLK_BUS_DMC_220_440
+#endif
 
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_CMDLINE_EDITING
-//#define CONFIG_SKIP_LOWLEVEL_INIT
+//#define CONFIG_SKIP_LOWLEVEL_INIT  //enable for exynos4412, init clock,ddr.
 #define CONFIG_BOARD_EARLY_INIT_F
 
 /* Size of malloc() pool */
@@ -203,12 +232,34 @@
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x5000000)
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x4800000)
 
-/* Universal has 2 banks of DRAM */
-#define CONFIG_NR_DRAM_BANKS	2
-#define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* LDDDR2 DMC 0 */
-#define PHYS_SDRAM_1_SIZE	(256 << 20)		/* 256 MB in CS 0 */
-#define PHYS_SDRAM_2		0x50000000		/* LPDDR2 DMC 1 */
-#define PHYS_SDRAM_2_SIZE	(256 << 20)		/* 256 MB in CS 0 */
+#ifdef USE_2G_DRAM
+#define CONFIG_NR_DRAM_BANKS	8
+#else
+#define CONFIG_NR_DRAM_BANKS	4
+#endif
+#define SDRAM_BANK_SIZE         0x10000000    /* 256 MB */
+#define PHYS_SDRAM_1            CONFIG_SYS_SDRAM_BASE /* SDRAM Bank #1 */
+#define PHYS_SDRAM_1_SIZE       SDRAM_BANK_SIZE
+#define PHYS_SDRAM_2            (CONFIG_SYS_SDRAM_BASE + SDRAM_BANK_SIZE) /* SDRAM Bank #2 */
+#define PHYS_SDRAM_2_SIZE       SDRAM_BANK_SIZE
+#define PHYS_SDRAM_3            (CONFIG_SYS_SDRAM_BASE + 2 * SDRAM_BANK_SIZE) /* SDRAM Bank #3 */
+#define PHYS_SDRAM_3_SIZE       SDRAM_BANK_SIZE
+#define PHYS_SDRAM_4            (CONFIG_SYS_SDRAM_BASE + 3 * SDRAM_BANK_SIZE) /* SDRAM Bank #4 */
+#define PHYS_SDRAM_4_SIZE       SDRAM_BANK_SIZE
+#define PHYS_SDRAM_5            (CONFIG_SYS_SDRAM_BASE + 4 * SDRAM_BANK_SIZE) /* SDRAM Bank #5 */
+#define PHYS_SDRAM_5_SIZE       SDRAM_BANK_SIZE
+#define PHYS_SDRAM_6            (CONFIG_SYS_SDRAM_BASE + 5 * SDRAM_BANK_SIZE) /* SDRAM Bank #6 */
+#define PHYS_SDRAM_6_SIZE       SDRAM_BANK_SIZE
+#define PHYS_SDRAM_7            (CONFIG_SYS_SDRAM_BASE + 6 * SDRAM_BANK_SIZE) /* SDRAM Bank #7 */
+#define PHYS_SDRAM_7_SIZE       SDRAM_BANK_SIZE
+#define PHYS_SDRAM_8            (CONFIG_SYS_SDRAM_BASE + 7 * SDRAM_BANK_SIZE) /* SDRAM Bank #8 */
+#define PHYS_SDRAM_8_SIZE       SDRAM_BANK_SIZE
+/* (Memory Interleaving Size = 1 << IV_SIZE) */
+#ifdef CONFIG_EVT0_STABLE
+#define CONFIG_IV_SIZE 0x1D
+#else
+#define CONFIG_IV_SIZE 0x7
+#endif
 
 #define CONFIG_SYS_MEM_TOP_HIDE		(1 << 20)	/* ram console */
 
