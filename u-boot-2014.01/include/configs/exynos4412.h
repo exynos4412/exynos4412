@@ -26,11 +26,14 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
+/*Use specified lds*/
+#define CONFIG_SYS_LDSCRIPT	"board/samsung/exynos4412/u-boot.lds"
+
 /* Keep L2 Cache Disabled */
 #define CONFIG_SYS_L2CACHE_OFF		1
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
-#define CONFIG_SYS_TEXT_BASE		0x44800000
+#define CONFIG_SYS_TEXT_BASE        0xc3e00000   //add for check code relocate
 
 /* input clock of PLL: Universal has 24MHz input clock at EXYNOS4210 */
 #define CONFIG_SYS_CLK_FREQ_C210	24000000
@@ -41,7 +44,7 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_SKIP_LOWLEVEL_INIT
+//#define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
 
 /* Size of malloc() pool */

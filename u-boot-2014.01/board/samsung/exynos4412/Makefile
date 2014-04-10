@@ -5,4 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= universal.o onenand.o
+obj-y	:= exynos4412.o onenand.o

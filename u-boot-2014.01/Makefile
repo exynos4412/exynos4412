@@ -826,8 +826,8 @@ clean:
 		-o -name '*.cfgtmp' \) -print \
 		| xargs rm -f
 ifeq ($(CONFIG_EXYNOS4412),y)
-		@rm bl2.bin mkbl2
-		@make -C sd_fuse/ clean
+		@-rm bl2.bin mkbl2
+		@-make -C sd_fuse/ clean
 endif
 
 # Removes everything not needed for testing u-boot
