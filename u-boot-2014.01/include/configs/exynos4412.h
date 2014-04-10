@@ -19,6 +19,8 @@
 #define CONFIG_EXYNOS4412	1	/* which is in a EXYNOS4210 */
 //#define CONFIG_UNIVERSAL	1	/* working with Universal */
 #define CONFIG_TIZEN		1	/* TIZEN lib */
+#define CONFIG_BUILD_ASM    1   //add for asm debug
+#undef CONFIG_BUILD_ASM
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 

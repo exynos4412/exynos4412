@@ -557,7 +557,9 @@ ifeq ($(CONFIG_KALLSYMS),y)
 			-c common/system_map.c -o $(obj)common/system_map.o
 		$(GEN_UBOOT) $(obj)common/system_map.o
 endif
-
+ifeq ($(CONFIG_BUILD_ASM),y)
+		$(OBJDUMP) -D -S $@ > $@.dis
+endif
 $(OBJS):
 	@:
 
