@@ -145,7 +145,7 @@ lowlevel_init:
 
 	/* init system clock */
 	bl system_clock_init
-	bl uart_asm_init
+
 	b  1f
 
 v310_1:
@@ -163,7 +163,7 @@ cold_boot:
 
 	ldr	r0, _boot_device
 
-	@b	coldboot
+	b	coldboot
 
 _boot_device:
 	.word	0x0
@@ -172,7 +172,7 @@ after_copy:
 	bl uart_asm_init
 
 	/* set up C2C */	
-	ldr r0, =EXYNOS4X12_SYSREG_BASE
+	ldr r0, =S5PV310_SYSREG_BASE
 	ldr r2, =GENERAL_CTRL_C2C_OFFSET
 	ldr r1, [r0, r2]
 	ldr r3, =0x4000
@@ -187,11 +187,11 @@ after_copy:
 	ldr r0, =CONFIG_PHY_UBOOT_BASE
 	sub r0, r0, #8
 	ldr r1, [r0]
-	@ldr r0, _second_boot_info
-	@str r1, [r0]
+	ldr r0, _second_boot_info
+	str r1, [r0]
 
 	/* Print 'K' */
-	ldr	r0, =EXYNOS4X12_UART_CONSOLE_BASE
+	ldr	r0, =S5PV310_UART_CONSOLE_BASE
 	ldr	r1, =0x4b4b4b4b
 	str	r1, [r0, #UTXH_OFFSET]
 
@@ -201,8 +201,8 @@ after_copy:
 _board_init_f:
 	.word board_init_f
 
-@_second_boot_info:
-	@.word second_boot_info
+_second_boot_info:
+	.word second_boot_info
 
 
 wakeup_reset:
@@ -238,7 +238,7 @@ wake_v310:
 exit_wakeup:
 	bl	relocate_code
 
-	@b	warmboot
+	b	warmboot
 
 read_om:
 	/* Read booting information */
@@ -363,7 +363,7 @@ mmcsd_boot:
 
 	mov	r0, #SDMMC_CH2
 	str	r0, _boot_device
-	@bl	load_uboot_image
+	bl	load_uboot_image
 
 	b	cold_boot
 	b       after_copy
@@ -379,7 +379,7 @@ emmc_boot:
 
 	mov	r0, #EMMC
 	str	r0, _boot_device
-	@bl	load_uboot_image
+	bl	load_uboot_image
 
 	b	cold_boot
 	b	after_copy
@@ -407,7 +407,7 @@ emmc_boot_4_4:
 
 	mov	r0, #EMMC_4_4
 	str	r0, _boot_device
-	@bl	load_uboot_image
+	bl	load_uboot_image
 
 	b	cold_boot
 	b	after_copy
