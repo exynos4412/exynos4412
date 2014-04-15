@@ -269,11 +269,15 @@ struct s3c_plat_otg_data s5pc210_otg_data = {
 	.usb_flags = PHY0_SLEEP,
 };
 #endif
-
+#ifdef CONFIG_DDR_DEBUG
+extern void asm_printc(char c);
+#endif
 int board_early_init_f(void)
 {
 	wdt_stop();
-
+#ifdef CONFIG_DDR_DEBUG
+	asm_printc('#');
+#endif
 	return 0;
 }
 

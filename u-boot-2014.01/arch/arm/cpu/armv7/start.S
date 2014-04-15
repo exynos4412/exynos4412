@@ -142,7 +142,10 @@ reset:
 	bl	cpu_init_cp15
 	bl	cpu_init_crit
 #endif
-
+#ifdef CONFIG_DDR_DEBUG
+	mov     r0,#'S'
+	bl	asm_printc
+#endif
 	bl	_main
 
 /*------------------------------------------------------------------------------*/

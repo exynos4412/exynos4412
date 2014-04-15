@@ -262,9 +262,12 @@ init_fnc_t *init_sequence[] = {
 	dram_init,		/* configure available RAM banks */
 	NULL,
 };
-
+#ifdef CONFIG_DDR_DEBUG
+extern void asm_printc(char c);
+#endif
 void board_init_f(ulong bootflag)
 {
+
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
 	gd_t *id;
@@ -274,9 +277,13 @@ void board_init_f(ulong bootflag)
 #endif
 	void *new_fdt = NULL;
 	size_t fdt_size = 0;
-
+#ifdef CONFIG_DDR_DEBUG
+	asm_printc('8');
+#endif
 	memset((void *)gd, 0, sizeof(gd_t));
-
+#ifdef CONFIG_DDR_DEBUG
+	asm_printc('7');
+#endif
 	gd->mon_len = _bss_end_ofs;
 #ifdef CONFIG_OF_EMBED
 	/* Get a pointer to the FDT */
@@ -288,13 +295,14 @@ void board_init_f(ulong bootflag)
 	/* Allow the early environment to override the fdt address */
 	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
 						(uintptr_t)gd->fdt_blob);
-
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr)() != 0) {
 			hang ();
 		}
 	}
-
+#ifdef CONFIG_DDR_DEBUG
+	asm_printc('9');
+#endif
 #ifdef CONFIG_OF_CONTROL
 	/* For now, put this check after the console is ready */
 	if (fdtdec_prepare_fdt()) {

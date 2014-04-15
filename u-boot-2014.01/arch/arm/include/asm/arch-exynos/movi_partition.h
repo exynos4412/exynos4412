@@ -25,7 +25,7 @@
 #define PART_SIZE_FWBL1		(8 * 1024)
 #endif
 #else
-#define PART_SIZE_FWBL1		0
+#define PART_SIZE_FWBL1		8 * 1024
 #endif
 #define PART_SIZE_BL2		(16 * 1024)
 #ifdef CONFIG_TRUSTZONE

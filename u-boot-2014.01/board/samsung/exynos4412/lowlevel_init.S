@@ -50,13 +50,13 @@ lowlevel_init:
 
 	/* disable GPX0 pull */
 	ldr r0, =0x11000c08 
-    ldr r1, =0x0
-    str r1, [r0]
+	ldr r1, =0x0
+	str r1, [r0]
 
 	/* Clear  MASK_WDT_RESET_REQUEST  */
-    ldr r0, =0x1002040c
-    ldr r1, =0x00
-    str r1, [r0]
+	ldr r0, =0x1002040c
+	ldr r1, =0x00
+	str r1, [r0]
 	
 	/* During sleep/wakeup or AFTR mode, pmic_init function is not available 
 	 * and it causes delays. So except for sleep/wakeup and AFTR mode, 
@@ -73,7 +73,7 @@ lowlevel_init:
 	ldr	r2, _TEXT_BASE	/* r1 <- original base addr in ram */
 	bic	r2, r2, r0		/* r0 <- current base addr of code */
 	cmp r1, r2			/* compare r0, r1 */
-	beq after_copy		/* r0 == r1 then skip sdram init and u-boot.bin loading */
+	beq after_copy_1		/* r0 == r1 then skip sdram init and u-boot.bin loading */
 
 	/* Read OM pin status */
 	bl read_om
@@ -88,11 +88,29 @@ lowlevel_init:
 	bl tzpc_init
 	
 	bl uart_asm_init
-
+#ifdef CONFIG_DDR_DEBUG
+	ldr r0, =0x41000000
+	mov r1, #0x55
+	str r1, [r0]
+	mov r3,#0
+	ldr r3, [r0]
+	cmp r3, #0x55
+	beq  1f
+	mov r0, #'N'
+	bl    asm_printc
+	b .
+1:
+	mov r0, #'Y'
+	bl    asm_printc
+#endif
 	b load_boot
 
 	.globl after_copy
 after_copy:
+#ifdef CONFIG_DDR_DEBUG
+	mov r0, #'T'
+	bl asm_printc
+#endif
 	/* set up C2C */	
 	ldr r0, =EXYNOS4X12_SYSREG_BASE
 	ldr r2, =GENERAL_CTRL_C2C_OFFSET
@@ -103,16 +121,18 @@ after_copy:
 #ifdef CONFIG_ENABLE_MMU
 	bl enable_mmu
 #endif
-	/* Print 'K' */
-	ldr	r0, =EXYNOS4X12_UART_CONSOLE_BASE
-	ldr	r1, =0x4b4b4b4b
-	str	r1, [r0, #UTXH_OFFSET]
+#if 0	
 	ldr r0, _board_init_f
 	mov pc, r0
 	
 _board_init_f:
 	.word board_init_f
-
+#else
+	ldr r0, =(CONFIG_PHY_UBOOT_BASE)
+	mov pc, r0
+after_copy_1:
+	pop {pc}
+#endif
 read_om:
 	/* Read booting information */
 	ldr	r0, =EXYNOS4X12_POWER_BASE
@@ -164,8 +184,20 @@ load_boot:
 	beq		emmc_boot_4_4
 	cmp     r1, #BOOT_SEC_DEV
 	beq     mmcsd_boot
+	b .
 
 mmcsd_boot: /*mmcsd boot mode*/
+#ifdef CONFIG_DDR_DEBUG
+	mov r0, #'M'
+	bl asm_printc
+	mov r0, #'M'
+	bl asm_printc
+	mov r0, #'C'
+	bl asm_printc
+	mov r0, #'P'
+	bl asm_printc
+#endif
+
 	ldr	r0, =EXYNOS4X12_CLOCK_BASE
 	ldr	r2, =CLK_DIV_FSYS2_OFFSET
 	ldr	r1, [r0, r2]
@@ -270,7 +302,12 @@ uart_asm_init:
 	str	r1, [r0, #UTXH_OFFSET]		@'O'
 	mov	pc, lr
 
-
+	.globl asm_printc
+asm_printc:
+	push {r1, lr}
+	ldr	r1, =EXYNOS4X12_UART_CONSOLE_BASE
+	str	r0, [r1, #UTXH_OFFSET]
+	pop {r1, pc}
 
 #ifdef CONFIG_ENABLE_MMU
 enable_mmu:

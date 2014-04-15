@@ -70,9 +70,16 @@ ENTRY(_main)
 	sub	sp, sp, #GD_SIZE	/* allocate one GD above SP */
 	bic	sp, sp, #7	/* 8-byte alignment for ABI compliance */
 	mov	r9, sp		/* GD is above SP */
+#ifdef CONFIG_DDR_DEBUG
+	mov	r0, #'1'
+	bl     asm_printc
+#endif
 	mov	r0, #0
 	bl	board_init_f
-
+#ifdef CONFIG_DDR_DEBUG
+	mov  r0, #'2'
+	bl 	asm_printc
+#endif
 #if ! defined(CONFIG_SPL_BUILD)
 
 /*

@@ -440,10 +440,22 @@ mem_ctrl_asm_init_ddr3:
 
 	ldr	r1, =0x00302600				
 	str	r1, [r0, #DMC_MEMCONTROL]
-
+#if 0
 	ldr	r1, =0x40C01323	
 	str	r1, [r0, #DMC_MEMCONFIG0]
+#else
+	/* 4Gb * 4 */
+	/*
+	ldr r1, =0x40801323
+	str	r1, [r0, #DMC_MEMCONFIG0]
+	*/
 
+	/* 2Gb * 8 */
+
+	ldr r1, =0x40801333
+	str	r1, [r0, #DMC_MEMCONFIG0]
+	
+#endif
 	ldr	r1, =(0x80000000 | CONFIG_IV_SIZE)
 	str	r1, [r0, #DMC_IVCONTROL]
 
@@ -456,7 +468,7 @@ mem_ctrl_asm_init_ddr3:
 	ldr	r1, =0x000000BB    				
 	str	r1, [r0, #DMC_TIMINGAREF] @TimingAref
 
-	ldr	r1, =0x4046654F  
+	ldr	r1, =0x7846654F/*0x4046654F*/
 	str	r1, [r0, #DMC_TIMINGROW] @TimingRow
 	ldr	r1, =0x46400506    				
 	str	r1, [r0, #DMC_TIMINGDATA] @TimingData
@@ -555,10 +567,21 @@ mem_ctrl_asm_init_ddr3:
 
 	ldr	r1, =0x00302600				
 	str	r1, [r0, #DMC_MEMCONTROL]
-
+#if 0
 	ldr	r1, =0x40C01323	
 	str	r1, [r0, #DMC_MEMCONFIG0]
+#else
+	/* 4Gb * 4 */
+	/*
+	ldr r1, =0x40801323
+	str	r1, [r0, #DMC_MEMCONFIG0]
+	*/
 
+	/* 2Gb * 8 */
+	ldr r1, =0x40801333
+	str	r1, [r0, #DMC_MEMCONFIG0]
+
+#endif
 	ldr	r1, =(0x80000000 | CONFIG_IV_SIZE)
 	str	r1, [r0, #DMC_IVCONTROL]
 
@@ -571,7 +594,7 @@ mem_ctrl_asm_init_ddr3:
 	ldr	r1, =0x000000BB    				
 	str	r1, [r0, #DMC_TIMINGAREF] @TimingAref
 
-	ldr	r1, =0x4046654F  
+	ldr	r1, =0x7846654F/*0x4046654F*/
 	str	r1, [r0, #DMC_TIMINGROW] @TimingRow
 	ldr	r1, =0x46400506    				
 	str	r1, [r0, #DMC_TIMINGDATA] @TimingData

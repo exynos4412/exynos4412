@@ -17,7 +17,7 @@ SECTIONS
 	. = ALIGN(4);
 	.text	:
 	{
-		
+		*(.__image_copy_start)
 		CPUDIR/start.o (.text*)
 		board/samsung/exynos4412/clock_init_smdk4212.o (.text*)
 		board/samsung/exynos4412/mem_init_smdk4212.o (.text*)

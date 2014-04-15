@@ -20,6 +20,7 @@
 //#define CONFIG_UNIVERSAL	1	/* working with Universal */
 #define CONFIG_TIZEN		1	/* TIZEN lib */
 #define CONFIG_BUILD_ASM    1   //add for asm debug
+#define CONFIG_DDR_DEBUG   1  //add for ddr debug
 #undef CONFIG_BUILD_ASM
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
@@ -39,12 +40,13 @@
 #define CONFIG_SECURE_BL1_ONLY
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
-#define CONFIG_SYS_TEXT_BASE        0xc3e00000   //add for check code relocate
+#define CONFIG_SYS_TEXT_BASE        0x43e00000   //add for check code relocate
 #define CONFIG_PHY_UBOOT_BASE		CONFIG_SYS_SDRAM_BASE + 0x3e00000
 #define CONFIG_PHY_IRAM_BASE            (0x02020000)
 #define CONFIG_PHY_IRAM_NS_BASE         (CONFIG_PHY_IRAM_BASE + 0x2F000
 #define CONFIG_PHY_IRAM_TOP             (CONFIG_PHY_IRAM_BASE + 0x40000) //256k size
-#define USE_2G_DRAM
+//#define USE_2G_DRAM
+//#define CONFIG_ENABLE_MMU
 /* input clock of PLL: Universal has 24MHz input clock at EXYNOS4210 */
 #define CONFIG_SYS_CLK_FREQ_C210	24000000
 #define CONFIG_SYS_CLK_FREQ		CONFIG_SYS_CLK_FREQ_C210

@@ -7,8 +7,8 @@
 
 #ifndef _EXYNOS4_CPU_H
 #define _EXYNOS4_CPU_H
+#include <configs/exynos4412.h>
 #define DEVICE_NOT_AVAILABLE		0
-#define CONFIG_EXYNOS4412
 #define EXYNOS_CPU_NAME			"Exynos"
 #define EXYNOS4_ADDR_BASE		0x10000000
 
