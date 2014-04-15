@@ -5,5 +5,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-extra-y := lowlevel_init.o mem_init_smdk4212.o clock_init_smdk4212.o
+extra-y := lowlevel_init.o mem_init_smdk4212.o clock_init_smdk4212.o irom_copy.o
 obj-y	:= exynos4412.o  onenand.o

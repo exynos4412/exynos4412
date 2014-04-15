@@ -35,6 +35,8 @@
 #define CONFIG_SYS_L2CACHE_OFF		1
 /* Disable I-Cache, D-Cache must */
 #undef CONFIG_SYS_ICACHE_OFF  //enable I-Cache
+/* Secure boot block*/
+#define CONFIG_SECURE_BL1_ONLY
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define CONFIG_SYS_TEXT_BASE        0xc3e00000   //add for check code relocate

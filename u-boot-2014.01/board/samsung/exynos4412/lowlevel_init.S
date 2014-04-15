@@ -64,8 +64,6 @@ lowlevel_init:
 	 */
 	@bl pmic_init
 
-	bl read_om
-
 	/* when we already run in ram, we don't need to relocate U-Boot.
 	 * and actually, memory controller must be configured before U-Boot
 	 * is running in ram.
@@ -76,6 +74,9 @@ lowlevel_init:
 	bic	r2, r2, r0		/* r0 <- current base addr of code */
 	cmp r1, r2			/* compare r0, r1 */
 	beq after_copy		/* r0 == r1 then skip sdram init and u-boot.bin loading */
+
+	/* Read OM pin status */
+	bl read_om
 
 	/* init system clock */
 	bl system_clock_init
@@ -88,9 +89,10 @@ lowlevel_init:
 	
 	bl uart_asm_init
 
-after_copy:
-	bl uart_asm_init
+	b load_boot
 
+	.globl after_copy
+after_copy:
 	/* set up C2C */	
 	ldr r0, =EXYNOS4X12_SYSREG_BASE
 	ldr r2, =GENERAL_CTRL_C2C_OFFSET
@@ -98,16 +100,13 @@ after_copy:
 	ldr r3, =0x4000
 	orr r1, r1, r3
 	str r1, [r0, r2]
-
 #ifdef CONFIG_ENABLE_MMU
 	bl enable_mmu
 #endif
-
 	/* Print 'K' */
 	ldr	r0, =EXYNOS4X12_UART_CONSOLE_BASE
 	ldr	r1, =0x4b4b4b4b
 	str	r1, [r0, #UTXH_OFFSET]
-
 	ldr r0, _board_init_f
 	mov pc, r0
 	
@@ -137,27 +136,56 @@ read_om:
 	cmp	r2, #0x10	@ 2KB 5-cycle	16-bit ECC
 	moveq	r3, #BOOT_NAND
 #endif
-
 	/* SD/MMC BOOT */
 	cmp     r2, #0x4
 	moveq   r3, #BOOT_MMCSD
-
 	/* eMMC BOOT */
 	cmp	r2, #0x6
 	moveq	r3, #BOOT_EMMC
-
 	/* eMMC 4.4 BOOT */
 	cmp	r2, #0x8
 	moveq	r3, #BOOT_EMMC_4_4
 	cmp	r2, #0x28
 	moveq	r3, #BOOT_EMMC_4_4
-
-	ldr	r0, =INF_REG_BASE
+	ldr	r0, =INF_REG_BASE  /* save to inf_reg3 */
 	str	r3, [r0, #INF_REG3_OFFSET]
-
 	mov	pc, lr
+/*
+ * load boot, mmcsd/emmc mode
+ */
+load_boot:
+	ldr	r0, =INF_REG_BASE
+	ldr	r1, [r0, #INF_REG3_OFFSET]
+	cmp 	r1, #BOOT_MMCSD
+	beq 	mmcsd_boot
+	cmp	r1, #BOOT_EMMC
+	beq		emmc_boot
+	cmp	r1, #BOOT_EMMC_4_4
+	beq		emmc_boot_4_4
+	cmp     r1, #BOOT_SEC_DEV
+	beq     mmcsd_boot
 
+mmcsd_boot: /*mmcsd boot mode*/
+	ldr	r0, =EXYNOS4X12_CLOCK_BASE
+	ldr	r2, =CLK_DIV_FSYS2_OFFSET
+	ldr	r1, [r0, r2]
+	orr r1, r1, #0xf
+	str r1, [r0, r2]
+	bl      movi_uboot_copy
+	b       after_copy
 	
+emmc_boot: /* emmc boot mode */
+	ldr	r0, =EXYNOS4X12_CLOCK_BASE
+	ldr	r2, =CLK_DIV_FSYS1_OFFSET
+	ldr	r1, [r0, r2]
+	orr r1, r1, #0x3
+	str r1, [r0, r2]
+	bl		emmc_uboot_copy
+	b	    after_copy
+
+emmc_boot_4_4: /*emmc4.4 boot mode*/
+	bl      emmc_4_4_uboot_copy
+	b	    after_copy
 /*
  *  samsung tzpc init
  */

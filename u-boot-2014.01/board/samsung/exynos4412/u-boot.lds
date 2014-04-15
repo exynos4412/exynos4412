@@ -22,8 +22,7 @@ SECTIONS
 		board/samsung/exynos4412/clock_init_smdk4212.o (.text*)
 		board/samsung/exynos4412/mem_init_smdk4212.o (.text*)
 		board/samsung/exynos4412/lowlevel_init.o (.text*)
-
-
+		board/samsung/exynos4412/irom_copy.o (.text*)
 		*(.text*)
 	}
 
