@@ -21,7 +21,9 @@
  * IRQ Stack: 00ebff7c
  * FIQ Stack: 00ebef7c
  */
-
+ #ifdef CONFIG_DDR_DEBUG
+#define DEBUG     //must before common.h
+#endif
 #include <common.h>
 #include <command.h>
 #include <environment.h>

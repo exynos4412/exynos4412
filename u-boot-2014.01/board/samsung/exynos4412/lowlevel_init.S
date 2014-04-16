@@ -297,9 +297,10 @@ uart_asm_init:
 
 	ldr	r1, =UART_UDIVSLOT_VAL
 	str	r1, [r0, #UDIVSLOT_OFFSET]
-	
+#ifdef CONFIG_DDR_DEBUG	
 	ldr	r1, =0x4f4f4f4f
 	str	r1, [r0, #UTXH_OFFSET]		@'O'
+#endif
 	mov	pc, lr
 
 	.globl asm_printc

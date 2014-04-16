@@ -7,7 +7,9 @@
  */
 
 #include <common.h>
+#ifdef CONFIG_SOFT_SPI
 #include <spi.h>
+#endif
 #include <lcd.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
@@ -17,7 +19,9 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/watchdog.h>
 #include <libtizen.h>
+#ifdef CONFIG_LD9040
 #include <ld9040.h>
+#endif
 #include <power/pmic.h>
 #include <usb/s3c_udc.h>
 #include <asm/arch/cpu.h>
@@ -44,7 +48,7 @@ static void init_pmic_lcd(void);
 int power_init_board(void)
 {
 	int ret;
-
+#if 0  //removed by jf.s, we will config S5M8767A
 	/*
 	 * For PMIC the I2C bus is named as I2C5, but it is connected
 	 * to logical I2C adapter 0
@@ -54,24 +58,59 @@ int power_init_board(void)
 		return ret;
 
 	init_pmic_lcd();
-
+#endif
 	return 0;
 }
 
 int dram_init(void)
 {
+	#ifdef USE_2G_DRAM
 	gd->ram_size = get_ram_size((long *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE) +
-		get_ram_size((long *)PHYS_SDRAM_2, PHYS_SDRAM_2_SIZE);
-
+		get_ram_size((long *)PHYS_SDRAM_2, PHYS_SDRAM_2_SIZE) + 
+		get_ram_size((long *)PHYS_SDRAM_3, PHYS_SDRAM_3_SIZE) +
+		get_ram_size((long *)PHYS_SDRAM_4, PHYS_SDRAM_4_SIZE) +
+		get_ram_size((long *)PHYS_SDRAM_5, PHYS_SDRAM_5_SIZE) +
+		get_ram_size((long *)PHYS_SDRAM_6, PHYS_SDRAM_6_SIZE) +
+		get_ram_size((long *)PHYS_SDRAM_7, PHYS_SDRAM_7_SIZE) +
+		get_ram_size((long *)PHYS_SDRAM_8, PHYS_SDRAM_8_SIZE) ;
+	#else
+	gd->ram_size = get_ram_size((long *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE) +
+		get_ram_size((long *)PHYS_SDRAM_2, PHYS_SDRAM_2_SIZE)+
+		get_ram_size((long *)PHYS_SDRAM_3, PHYS_SDRAM_3_SIZE) +
+		get_ram_size((long *)PHYS_SDRAM_4, PHYS_SDRAM_4_SIZE) ;
+	#endif
 	return 0;
 }
 
 void dram_init_banksize(void)
 {
+	#ifdef USE_2G_DRAM
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
 	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
+	gd->bd->bi_dram[2].start = PHYS_SDRAM_3;
+	gd->bd->bi_dram[2].size = PHYS_SDRAM_3_SIZE;
+	gd->bd->bi_dram[3].start = PHYS_SDRAM_4;
+	gd->bd->bi_dram[3].size = PHYS_SDRAM_4_SIZE;
+	gd->bd->bi_dram[4].start = PHYS_SDRAM_5;
+	gd->bd->bi_dram[4].size = PHYS_SDRAM_5_SIZE;
+	gd->bd->bi_dram[5].start = PHYS_SDRAM_6;
+	gd->bd->bi_dram[5].size = PHYS_SDRAM_6_SIZE;
+	gd->bd->bi_dram[6].start = PHYS_SDRAM_7;
+	gd->bd->bi_dram[6].size = PHYS_SDRAM_7_SIZE;
+	gd->bd->bi_dram[7].start = PHYS_SDRAM_8;
+	gd->bd->bi_dram[7].size = PHYS_SDRAM_8_SIZE;
+	#else
+	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
+	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
+	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
+	gd->bd->bi_dram[2].start = PHYS_SDRAM_3;
+	gd->bd->bi_dram[2].size = PHYS_SDRAM_3_SIZE;
+	gd->bd->bi_dram[3].start = PHYS_SDRAM_4;
+	gd->bd->bi_dram[3].size = PHYS_SDRAM_4_SIZE;
+	#endif
 }
 
 static unsigned short get_adc_value(int channel)
@@ -161,7 +200,7 @@ static void check_hw_revision(void)
 #ifdef CONFIG_DISPLAY_BOARDINFO
 int checkboard(void)
 {
-	puts("Board:\tUniversal C210\n");
+	puts("Board:\tExynos4412\n");
 	return 0;
 }
 #endif
@@ -411,8 +450,9 @@ void exynos_cfg_lcd_gpio(void)
 
 	/* gpio pad configuration for LCD reset. */
 	s5p_gpio_cfg_pin(&gpio2->y4, 5, GPIO_OUTPUT);
-
+	#ifdef CONFIG_SOFT_SPI
 	spi_init();
+	#endif
 }
 
 void exynos_reset_lcd(void)
@@ -474,12 +514,16 @@ vidinfo_t panel_info = {
 
 void exynos_cfg_ldo(void)
 {
+	#ifdef CONFIG_LD9040
 	ld9040_cfg_ldo();
+	#endif
 }
 
 void exynos_enable_ldo(unsigned int onoff)
 {
-	ld9040_enable_ldo(onoff);
+	#ifdef CONFIG_LD9040
+	ld9040_enable_ldo(onoff)
+	#endif;
 }
 
 void init_panel_info(vidinfo_t *vid)
@@ -504,13 +548,13 @@ int board_init(void)
 	gpio1 = (struct exynos4_gpio_part1 *) EXYNOS4_GPIO_PART1_BASE;
 	gpio2 = (struct exynos4_gpio_part2 *) EXYNOS4_GPIO_PART2_BASE;
 
-	gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
+	//gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 #ifdef CONFIG_SOFT_SPI
 	soft_spi_init();
 #endif
-	check_hw_revision();
+	//check_hw_revision();  //exynos4412 Not use
 	printf("HW Revision:\t0x%x\n", board_rev);
 
 	return 0;

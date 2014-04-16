@@ -22,11 +22,12 @@
 #define CONFIG_BUILD_ASM    1   //add for asm debug
 #define CONFIG_DDR_DEBUG   1  //add for ddr debug
 #undef CONFIG_BUILD_ASM
+#undef CONFIG_DDR_DEBUG
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
-#define CONFIG_ARCH_CPU_INIT
-#define CONFIG_DISPLAY_CPUINFO
+#define CONFIG_ARCH_CPU_INIT        //only set s5p_cpu_id
+#define CONFIG_DISPLAY_CPUINFO    //based on CONFIG_ARCH_CPU_INIT
 #define CONFIG_DISPLAY_BOARDINFO
 
 /*Use specified lds*/
@@ -34,7 +35,8 @@
 
 /* Keep L2 Cache Disabled */
 #define CONFIG_SYS_L2CACHE_OFF		1
-/* Disable I-Cache, D-Cache must */
+/* Enable I-Cache,Disable  D-Cache must if MMU disabled*/
+#define CONFIG_SYS_DCACHE_OFF
 #undef CONFIG_SYS_ICACHE_OFF  //enable I-Cache
 /* Secure boot block*/
 #define CONFIG_SECURE_BL1_ONLY
@@ -45,7 +47,7 @@
 #define CONFIG_PHY_IRAM_BASE            (0x02020000)
 #define CONFIG_PHY_IRAM_NS_BASE         (CONFIG_PHY_IRAM_BASE + 0x2F000
 #define CONFIG_PHY_IRAM_TOP             (CONFIG_PHY_IRAM_BASE + 0x40000) //256k size
-//#define USE_2G_DRAM
+#define USE_2G_DRAM
 //#define CONFIG_ENABLE_MMU
 /* input clock of PLL: Universal has 24MHz input clock at EXYNOS4210 */
 #define CONFIG_SYS_CLK_FREQ_C210	24000000
@@ -84,14 +86,14 @@
 #define CONFIG_REVISION_TAG
 #define CONFIG_CMDLINE_EDITING
 //#define CONFIG_SKIP_LOWLEVEL_INIT  //enable for exynos4412, init clock,ddr.
-#define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_EARLY_INIT_F  //close wdt
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
 
 /* select serial console configuration */
 #define CONFIG_SERIAL2		1	/* use SERIAL 2 */
-#define CONFIG_BAUDRATE		115200
+#define CONFIG_BAUDRATE		115200    //used by gd->baudrate
 
 /* MMC */
 #define CONFIG_GENERIC_MMC
@@ -105,6 +107,8 @@
 /* It should define before config_cmd_default.h */
 #define CONFIG_SYS_NO_FLASH		1
 
+/* Linux MachType*/
+#define CONFIG_MACH_TYPE                  4412
 /* Command definition */
 #include <config_cmd_default.h>
 
@@ -115,11 +119,12 @@
 #undef CONFIG_CMD_XIMG
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_ONENAND
+#undef CONFIG_CMD_ONENAND   //we do not have onenand
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_FAT
 
-#define CONFIG_BOOTDELAY		1
+#define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
 #define CONFIG_MTD_DEVICE
@@ -229,7 +234,7 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser	*/
-#define CONFIG_SYS_PROMPT	"Universal # "
+#define CONFIG_SYS_PROMPT	"Exynos4412 # "  //Console display name
 #define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE	384	/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */
@@ -273,11 +278,11 @@
 
 #define CONFIG_SYS_MONITOR_BASE		0x00000000
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
-
+#if 0 //exynos4412 not have onenand
 #define CONFIG_USE_ONENAND_BOARD_INIT
 #define CONFIG_SAMSUNG_ONENAND
 #define CONFIG_SYS_ONENAND_BASE		0x0C000000
-
+#endif
 #define CONFIG_ENV_IS_IN_MMC		1
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_SIZE			4096
@@ -332,7 +337,7 @@ void universal_spi_scl(int bit);
 void universal_spi_sda(int bit);
 int universal_spi_read(void);
 #endif
-
+#undef CONFIG_SOFT_SPI    //exynos4412 dp borad not use
 /*
  * LCD Settings
  */
@@ -340,7 +345,7 @@ int universal_spi_read(void);
 #define CONFIG_LCD
 #define CONFIG_CMD_BMP
 #define CONFIG_BMP_32BPP
-#define CONFIG_LD9040
+//#define CONFIG_LD9040 //removed by jf.s, exynos4412 not use
 #define CONFIG_EXYNOS_MIPI_DSIM
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((520 * 120 * 4) + (1 << 12))
