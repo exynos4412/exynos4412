@@ -250,6 +250,15 @@ void exynos_fimd_window_off(unsigned int win_id)
 	writel(cfg, &fimd_ctrl->winshmap);
 }
 
+void exynos_fimd_dump(void)
+{
+	int i;
+	unsigned int* dump =  (struct exynos_fb *)samsung_get_base_fimd();
+	for(i = 0; i < (sizeof(struct exynos_fb)/sizeof(unsigned int)); i++){
+		printf("Reg[0x%x]=0x%x\n", dump, readl(dump));
+		dump++;
+	}
+}
 
 void exynos_fimd_lcd_init(vidinfo_t *vid)
 {
@@ -357,6 +366,7 @@ void exynos_fimd_lcd_init(vidinfo_t *vid)
 	exynos_fimd_window_on(pvid->win_id);
 
 	exynos_fimd_set_dp_clkcon(pvid->dp_enabled);
+	exynos_fimd_dump();
 }
 
 unsigned long exynos_fimd_calc_fbsize(void)

@@ -373,6 +373,7 @@ void exynos_cfg_lcd_gpio(void)
 	//s5p_gpio_cfg_pin(&gpio2->y4, 5, GPIO_OUTPUT);
 	/*enable sn75lvds83b*/
 	s5p_gpio_direction_output(&gpio2->l1, 0, 1);  //lcd_pwdn:GPL1_0, sn75lvds83b shutdown pin. active:high
+	s5p_gpio_direction_output(&gpio1->d0,1, 1);  //pwm:high
 	#ifdef CONFIG_SOFT_SPI
 	spi_init();
 	#endif
@@ -380,12 +381,14 @@ void exynos_cfg_lcd_gpio(void)
 
 void exynos_reset_lcd(void)
 {
+#if 0
 	s5p_gpio_set_value(&gpio2->y4, 5, 1);
 	udelay(10000);
 	s5p_gpio_set_value(&gpio2->y4, 5, 0);
 	udelay(10000);
 	s5p_gpio_set_value(&gpio2->y4, 5, 1);
 	udelay(100);
+#endif
 }
 
 void exynos_lcd_power_on(void)
@@ -405,26 +408,26 @@ void exynos_lcd_power_on(void)
 }
 
 vidinfo_t panel_info = {
-	.vl_freq	= 60,
-	.vl_col		= 480,
-	.vl_row		= 800,
-	.vl_width	= 480,
-	.vl_height	= 800,
+	.vl_freq	= 70,
+	.vl_col		= 768,
+	.vl_row		= 1024,
+	.vl_width	= 1024,
+	.vl_height	= 768,
 	.vl_clkp	= CONFIG_SYS_HIGH,
-	.vl_hsp		= CONFIG_SYS_HIGH,
+	.vl_hsp		= CONFIG_SYS_LOW,
 	.vl_vsp		= CONFIG_SYS_HIGH,
-	.vl_dp		= CONFIG_SYS_HIGH,
+	.vl_dp		= CONFIG_SYS_LOW,
 
 	.vl_bpix	= 5,	/* Bits per pixel */
 
 	/* LD9040 LCD Panel */
-	.vl_hspw	= 2,
-	.vl_hbpd	= 16,
-	.vl_hfpd	= 16,
+	.vl_hspw	= 32,
+	.vl_hbpd	= 80,
+	.vl_hfpd	= 48,
 
-	.vl_vspw	= 2,
-	.vl_vbpd	= 8,
-	.vl_vfpd	= 8,
+	.vl_vspw	= 5,
+	.vl_vbpd	= 14,
+	.vl_vfpd	= 3,
 	.vl_cmd_allow_len = 0xf,
 
 	.win_id		= 0,
