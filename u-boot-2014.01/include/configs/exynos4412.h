@@ -16,6 +16,7 @@
  */
 #define CONFIG_SAMSUNG		1	/* in a SAMSUNG core */
 #define CONFIG_S5P		1	/* which is in a S5P Family */
+#define CONFIG_EXYNOS4      /* which is in a  EXYNOS4 Family*/
 #define CONFIG_EXYNOS4412	1	/* which is in a EXYNOS4210 */
 //#define CONFIG_UNIVERSAL	1	/* working with Universal */
 #define CONFIG_TIZEN		1	/* TIZEN lib */
@@ -298,6 +299,14 @@
 /*
  * I2C Settings
  */
+//#define CONFIG_HARD_I2C
+#define CONFIG_SYS_I2C_S3C24X0  //add hardware i2c
+#define CONFIG_SYS_I2C_S3C24X0_SLAVE     0xaa   //only for cpu as slave
+#define CONFIG_SYS_I2C_S3C24X0_SPEED     300*1000
+#define CONFIG_SYS_I2C_SPEED     CONFIG_SYS_I2C_S3C24X0_SPEED
+#define CONFIG_SYS_I2C_SLAVE	 CONFIG_SYS_I2C_S3C24X0_SLAVE
+#define CONFIG_MAX_I2C_NUM    9
+#ifndef CONFIG_HARD_I2C
 #define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_part1_get_nr(b, 7)
 #define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_part1_get_nr(b, 6)
 
@@ -308,10 +317,14 @@
 #define CONFIG_SOFT_I2C_READ_REPEATED_START
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_MAX_I2C_BUS	7
-
+#endif
+/*
+ * Pmic settings
+ */
 #define CONFIG_POWER
 #define CONFIG_POWER_I2C
-#define CONFIG_POWER_MAX8998
+//#define CONFIG_POWER_MAX8998
+#define CONFIG_POWER_S5M8767A
 
 #define CONFIG_USB_GADGET
 #define CONFIG_USB_GADGET_S3C_UDC_OTG
@@ -346,7 +359,7 @@ int universal_spi_read(void);
 #define CONFIG_CMD_BMP
 #define CONFIG_BMP_32BPP
 //#define CONFIG_LD9040 //removed by jf.s, exynos4412 not use
-#define CONFIG_EXYNOS_MIPI_DSIM
+//#define CONFIG_EXYNOS_MIPI_DSIM
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((520 * 120 * 4) + (1 << 12))
 

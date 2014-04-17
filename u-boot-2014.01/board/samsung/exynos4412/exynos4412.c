@@ -25,13 +25,17 @@
 #include <power/pmic.h>
 #include <usb/s3c_udc.h>
 #include <asm/arch/cpu.h>
+#ifdef CONFIG_POWER_MAX8998
 #include <power/max8998_pmic.h>
-
+#endif
+#ifdef CONFIG_POWER_S5M8767A
+#include <power/s5m8767a_pmic.h>
+#endif
 DECLARE_GLOBAL_DATA_PTR;
 
 struct exynos4_gpio_part1 *gpio1;
 struct exynos4_gpio_part2 *gpio2;
-unsigned int board_rev;
+unsigned int board_rev = 2;
 
 u32 get_board_rev(void)
 {
@@ -48,15 +52,15 @@ static void init_pmic_lcd(void);
 int power_init_board(void)
 {
 	int ret;
-#if 0  //removed by jf.s, we will config S5M8767A
+
 	/*
 	 * For PMIC the I2C bus is named as I2C5, but it is connected
-	 * to logical I2C adapter 0
+	 * to logical I2C adapter 1
 	 */
-	ret = pmic_init(I2C_0);
+	ret = pmic_init(I2C_1);
 	if (ret)
 		return ret;
-
+#if 0  //removed by jf.s, we will config S5M8767A
 	init_pmic_lcd();
 #endif
 	return 0;
@@ -111,90 +115,6 @@ void dram_init_banksize(void)
 	gd->bd->bi_dram[3].start = PHYS_SDRAM_4;
 	gd->bd->bi_dram[3].size = PHYS_SDRAM_4_SIZE;
 	#endif
-}
-
-static unsigned short get_adc_value(int channel)
-{
-	struct s5p_adc *adc = (struct s5p_adc *)samsung_get_base_adc();
-	unsigned short ret = 0;
-	unsigned int reg;
-	unsigned int loop = 0;
-
-	writel(channel & 0xF, &adc->adcmux);
-	writel((1 << 14) | (49 << 6), &adc->adccon);
-	writel(1000 & 0xffff, &adc->adcdly);
-	writel(readl(&adc->adccon) | (1 << 16), &adc->adccon); /* 12 bit */
-	udelay(10);
-	writel(readl(&adc->adccon) | (1 << 0), &adc->adccon); /* Enable */
-	udelay(10);
-
-	do {
-		udelay(1);
-		reg = readl(&adc->adccon);
-	} while (!(reg & (1 << 15)) && (loop++ < 1000));
-
-	ret = readl(&adc->adcdat0) & 0xFFF;
-
-	return ret;
-}
-
-static int adc_power_control(int on)
-{
-	int ret;
-	struct pmic *p = pmic_get("MAX8998_PMIC");
-	if (!p)
-		return -ENODEV;
-
-	if (pmic_probe(p))
-		return -1;
-
-	ret = pmic_set_output(p,
-			      MAX8998_REG_ONOFF1,
-			      MAX8998_LDO4, !!on);
-
-	return ret;
-}
-
-static unsigned int get_hw_revision(void)
-{
-	int hwrev, mode0, mode1;
-
-	adc_power_control(1);
-
-	mode0 = get_adc_value(1);		/* HWREV_MODE0 */
-	mode1 = get_adc_value(2);		/* HWREV_MODE1 */
-
-	/*
-	 * XXX Always set the default hwrev as the latest board
-	 * ADC = (voltage) / 3.3 * 4096
-	 */
-	hwrev = 3;
-
-#define IS_RANGE(x, min, max)	((x) > (min) && (x) < (max))
-	if (IS_RANGE(mode0, 80, 200) && IS_RANGE(mode1, 80, 200))
-		hwrev = 0x0;		/* 0.01V	0.01V */
-	if (IS_RANGE(mode0, 750, 1000) && IS_RANGE(mode1, 80, 200))
-		hwrev = 0x1;		/* 610mV	0.01V */
-	if (IS_RANGE(mode0, 1300, 1700) && IS_RANGE(mode1, 80, 200))
-		hwrev = 0x2;		/* 1.16V	0.01V */
-	if (IS_RANGE(mode0, 2000, 2400) && IS_RANGE(mode1, 80, 200))
-		hwrev = 0x3;		/* 1.79V	0.01V */
-#undef IS_RANGE
-
-	debug("mode0: %d, mode1: %d, hwrev 0x%x\n", mode0, mode1, hwrev);
-
-	adc_power_control(0);
-
-	return hwrev;
-}
-
-static void check_hw_revision(void)
-{
-	int hwrev;
-
-	hwrev = get_hw_revision();
-
-	board_rev |= hwrev;
 }
 
 #ifdef CONFIG_DISPLAY_BOARDINFO
@@ -266,6 +186,7 @@ int board_mmc_init(bd_t *bis)
 static int s5pc210_phy_control(int on)
 {
 	int ret = 0;
+#ifdef CONFIG_POWER_MAX8998
 	struct pmic *p = pmic_get("MAX8998_PMIC");
 	if (!p)
 		return -ENODEV;
@@ -296,7 +217,7 @@ static int s5pc210_phy_control(int on)
 		puts("MAX8998 LDO setting error!\n");
 		return -1;
 	}
-
+#endif
 	return 0;
 }
 
@@ -371,7 +292,7 @@ static void init_pmic_lcd(void)
 {
 	unsigned char val;
 	int ret = 0;
-
+#ifdef CONFIG_POWER_MAX8998
 	struct pmic *p = pmic_get("MAX8998_PMIC");
 
 	if (!p)
@@ -410,7 +331,7 @@ static void init_pmic_lcd(void)
 	 */
 	val = 0x00;
 	ret |= pmic_reg_write(p,  MAX8998_REG_ONOFF3, val);
-
+#endif
 	if (ret)
 		puts("LCD pmic initialisation error!\n");
 }
@@ -449,7 +370,9 @@ void exynos_cfg_lcd_gpio(void)
 	}
 
 	/* gpio pad configuration for LCD reset. */
-	s5p_gpio_cfg_pin(&gpio2->y4, 5, GPIO_OUTPUT);
+	//s5p_gpio_cfg_pin(&gpio2->y4, 5, GPIO_OUTPUT);
+	/*enable sn75lvds83b*/
+	s5p_gpio_direction_output(&gpio2->l1, 0, 1);  //lcd_pwdn:GPL1_0, sn75lvds83b shutdown pin. active:high
 	#ifdef CONFIG_SOFT_SPI
 	spi_init();
 	#endif
@@ -467,6 +390,7 @@ void exynos_reset_lcd(void)
 
 void exynos_lcd_power_on(void)
 {
+#ifdef CONFIG_POWER_MAX8998
 	struct pmic *p = pmic_get("MAX8998_PMIC");
 
 	if (!p)
@@ -477,6 +401,7 @@ void exynos_lcd_power_on(void)
 
 	pmic_set_output(p, MAX8998_REG_ONOFF3, MAX8998_LDO17, LDO_ON);
 	pmic_set_output(p, MAX8998_REG_ONOFF2, MAX8998_LDO7, LDO_ON);
+#endif
 }
 
 vidinfo_t panel_info = {
