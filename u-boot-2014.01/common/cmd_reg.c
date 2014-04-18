@@ -12,7 +12,7 @@ int do_reg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 	val = simple_strtoul(argv[2], NULL, 16);
 	writel(addr, val);
-	printf ("##Read Reg[0x%x]=0x%x\n", addr, val);
+	printf ("##Write Reg[0x%x]=0x%x\n", addr, val);
 	return 0;
 }
 
@@ -21,5 +21,5 @@ U_BOOT_CMD(
 	"read/write cpu reg",
 	"reg [arg ...]\n    - read/write at address 'arg'\n"
 	"       reg arg  -  read arg\n"
-	"		reg arg1 arg2  -  write arg2 to arg1"
+	"	reg arg1 arg2  -  write arg2 to arg1\n"
 );
