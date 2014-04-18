@@ -124,6 +124,7 @@
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_REG   //Debug cpu reg, also you use cmd_mem
 
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK

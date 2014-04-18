@@ -170,6 +170,7 @@ obj-$(CONFIG_YAFFS2) += cmd_yaffs2.o
 obj-$(CONFIG_CMD_SPL) += cmd_spl.o
 obj-$(CONFIG_CMD_ZIP) += cmd_zip.o
 obj-$(CONFIG_CMD_ZFS) += cmd_zfs.o
+obj-$(CONFIG_CMD_REG) += cmd_reg.o
 
 # others
 obj-$(CONFIG_BOOTSTAGE) += bootstage.o
