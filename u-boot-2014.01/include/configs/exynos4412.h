@@ -48,7 +48,7 @@
 #define CONFIG_PHY_IRAM_BASE            (0x02020000)
 #define CONFIG_PHY_IRAM_NS_BASE         (CONFIG_PHY_IRAM_BASE + 0x2F000
 #define CONFIG_PHY_IRAM_TOP             (CONFIG_PHY_IRAM_BASE + 0x40000) //256k size
-#define USE_2G_DRAM
+//#define USE_2G_DRAM
 //#define CONFIG_ENABLE_MMU
 /* input clock of PLL: Universal has 24MHz input clock at EXYNOS4210 */
 #define CONFIG_SYS_CLK_FREQ_C210	24000000
@@ -101,7 +101,7 @@
 #define CONFIG_MMC
 #define CONFIG_SDHCI
 #define CONFIG_S5P_SDHCI
-
+#define CONFIG_DEBUG_MMC   //dump mmcinfo
 /* PWM */
 #define CONFIG_PWM			1
 
@@ -359,6 +359,7 @@ int universal_spi_read(void);
 #define CONFIG_LCD
 #define CONFIG_CMD_BMP
 #define CONFIG_BMP_32BPP
+//#define LCD_TEST_PATTERN 
 //#define CONFIG_LD9040 //removed by jf.s, exynos4412 not use
 //#define CONFIG_EXYNOS_MIPI_DSIM
 #define CONFIG_VIDEO_BMP_GZIP

@@ -162,14 +162,14 @@ int board_mmc_init(bd_t *bis)
 		err = s5p_mmc_init(0, 8);
 
 	/* T-flash detect */
-	s5p_gpio_cfg_pin(&gpio2->x3, 4, 0xf);
-	s5p_gpio_set_pull(&gpio2->x3, 4, GPIO_PULL_UP);
+	s5p_gpio_cfg_pin(&gpio2->x0, 7, 0xf);
+	s5p_gpio_set_pull(&gpio2->x0, 7, GPIO_PULL_NONE);
 
 	/*
 	 * Check the T-flash  detect pin
-	 * GPX3[4] T-flash detect pin
+	 * GPX1[7] T-flash detect pin
 	 */
-	if (!s5p_gpio_get_value(&gpio2->x3, 4)) {
+	if (!s5p_gpio_get_value(&gpio2->x0, 7)) {
 		err = exynos_pinmux_config(PERIPH_ID_SDMMC2, PINMUX_FLAG_NONE);
 		if (err)
 			debug("SDMMC2 not configured\n");
