@@ -115,7 +115,9 @@
 
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_MISC
-#undef CONFIG_CMD_NET
+//#undef CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_XIMG
 #define CONFIG_CMD_CACHE
@@ -365,4 +367,17 @@ int universal_spi_read(void);
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((520 * 120 * 4) + (1 << 12))
 
+/*
+* LAN9215 Settings
+*/
+#define CONFIG_SMC911X
+/*
+*Bank0  0x400_0000 - 0x500_0000  Size:16M
+*Bank1  0x500_0000 - 0x600_0000  Size:16M
+*Bank2  0x600_0000 - 0x700_0000  Size:16M
+*Bank3  0x700_0000 - 0x800_0000  Size:16M
+*/
+#define CONFIG_SMC911X_BASE		0x5000000
+#define CONFIG_SMC911X_16_BIT
+#define CONFIG_ENV_SROM_BANK     1
 #endif	/* __CONFIG_H */

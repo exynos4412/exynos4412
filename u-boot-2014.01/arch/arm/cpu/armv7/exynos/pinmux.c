@@ -279,6 +279,88 @@ static void exynos5_sromc_config(int flags)
 	}
 }
 
+static void exynos4_sromc_config(int flags)
+{
+	struct exynos4_gpio_part2 *gpio2 =
+		(struct exynos5_gpio_part2 *) samsung_get_base_gpio_part1();
+	int i;
+
+	/*
+	 * SROM:CS1 and EBI
+	 *
+	 * GPY0[0]	SROM_CSn[0]
+	 * GPY0[1]	SROM_CSn[1]
+	 * GPY0[2]	SROM_CSn[2]
+	 * GPY0[3]	SROM_CSn[3]
+	 * GPY0[4]	EBI_OEn(2)
+	 * GPY0[5]	EBI_WEn(2)
+	 *
+	 * GPY1[0]	EBI_BEn[0](2)
+	 * GPY1[1]	EBI_BEn[1](2)
+	 * GPY1[2]	SROM_WAIT(2)
+	 * GPY1[3]	EBI_DATA_RDn(2)
+	 */
+	s5p_gpio_cfg_pin(&gpio2->y0, (flags & PINMUX_FLAG_BANK),
+				GPIO_FUNC(2));
+	s5p_gpio_cfg_pin(&gpio2->y0, 4, GPIO_FUNC(2));
+	s5p_gpio_cfg_pin(&gpio2->y0, 5, GPIO_FUNC(2));
+
+	for (i = 0; i < 4; i++)
+		s5p_gpio_cfg_pin(&gpio2->y1, i, GPIO_FUNC(2));
+
+	/*
+	 * EBI: 16 Addrss Lines
+	 *
+	 * GPY3[0]	EBI_ADDR[0](2)
+	 * GPY3[1]	EBI_ADDR[1](2)
+	 * GPY3[2]	EBI_ADDR[2](2)
+	 * GPY3[3]	EBI_ADDR[3](2)
+	 * GPY3[4]	EBI_ADDR[4](2)
+	 * GPY3[5]	EBI_ADDR[5](2)
+	 * GPY3[6]	EBI_ADDR[6](2)
+	 * GPY3[7]	EBI_ADDR[7](2)
+	 * GPY4[0]	EBI_ADDR[8](2)
+	 * GPY4[1]	EBI_ADDR[9](2)
+	 * GPY4[2]	EBI_ADDR[10](2)
+	 * GPY4[3]	EBI_ADDR[11](2)
+	 * GPY4[4]	EBI_ADDR[12](2)
+	 * GPY4[5]	EBI_ADDR[13](2)
+	 * GPY4[6]	EBI_ADDR[14](2)
+	 * GPY4[7]	EBI_ADDR[15](2)
+	 *
+	 * EBI: 16 Data Lines
+	 *
+	 * GPY5[0]	EBI_DATA[0](2)
+	 * GPY5[1]	EBI_DATA[1](2)
+	 * GPY5[2]	EBI_DATA[2](2)
+	 * GPY5[3]	EBI_DATA[3](2)
+	 * GPY5[4]	EBI_DATA[4](2)
+	 * GPY5[5]	EBI_DATA[5](2)
+	 * GPY5[6]	EBI_DATA[6](2)
+	 * GPY5[7]	EBI_DATA[7](2)
+	 *
+	 * GPY6[0]	EBI_DATA[8](2)
+	 * GPY6[1]	EBI_DATA[9](2)
+	 * GPY6[2]	EBI_DATA[10](2)
+	 * GPY6[3]	EBI_DATA[11](2)
+	 * GPY6[4]	EBI_DATA[12](2)
+	 * GPY6[5]	EBI_DATA[13](2)
+	 * GPY6[6]	EBI_DATA[14](2)
+	 * GPY6[7]	EBI_DATA[15](2)
+	 */
+	for (i = 0; i < 8; i++) {
+		s5p_gpio_cfg_pin(&gpio2->y3, i, GPIO_FUNC(2));
+		s5p_gpio_set_pull(&gpio2->y3, i, GPIO_PULL_UP);
+
+		s5p_gpio_cfg_pin(&gpio2->y5, i, GPIO_FUNC(2));
+		s5p_gpio_set_pull(&gpio2->y5, i, GPIO_PULL_UP);
+
+		s5p_gpio_cfg_pin(&gpio2->y6, i, GPIO_FUNC(2));
+		s5p_gpio_set_pull(&gpio2->y6, i, GPIO_PULL_UP);
+	}
+}
+
+
 static void exynos5_i2c_config(int peripheral, int flags)
 {
 
@@ -711,6 +793,8 @@ static int exynos4_pinmux_config(int peripheral, int flags)
 	case PERIPH_ID_SDMMC0:
 	case PERIPH_ID_SDMMC2:
 		return exynos4_mmc_config(peripheral, flags);
+	case PERIPH_ID_SROMC:
+		exynos4_sromc_config(flags);
 	case PERIPH_ID_SDMMC1:
 	case PERIPH_ID_SDMMC3:
 	case PERIPH_ID_SDMMC4:

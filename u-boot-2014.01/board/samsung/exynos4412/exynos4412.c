@@ -11,6 +11,7 @@
 #include <spi.h>
 #endif
 #include <lcd.h>
+#include <fdtdec.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/adc.h>
@@ -18,6 +19,7 @@
 #include <asm/arch/mmc.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/watchdog.h>
+#include <asm/arch/sromc.h>
 #include <libtizen.h>
 #ifdef CONFIG_LD9040
 #include <ld9040.h>
@@ -471,6 +473,71 @@ void init_panel_info(vidinfo_t *vid)
 	setenv("lcdinfo", "lcd=ld9040");
 }
 
+int board_eth_init(bd_t *bis)
+{
+#ifdef CONFIG_SMC911X
+        u32 smc_bw_conf, smc_bc_conf;
+        struct fdt_sromc config;
+        fdt_addr_t base_addr;
+
+        /* Non-FDT configuration - bank number and timing parameters*/
+        config.bank = CONFIG_ENV_SROM_BANK;
+        config.width = 2;
+
+        config.timing[FDT_SROM_TACS] = 0x01;
+        config.timing[FDT_SROM_TCOS] = 0x01;
+        config.timing[FDT_SROM_TACC] = 0x06;
+        config.timing[FDT_SROM_TCOH] = 0x01;
+        config.timing[FDT_SROM_TAH] = 0x0C;
+        config.timing[FDT_SROM_TACP] = 0x09;
+        config.timing[FDT_SROM_PMC] = 0x01;
+        base_addr = CONFIG_SMC911X_BASE;
+
+        /* Ethernet needs data bus width of 16 bits */
+        if (config.width != 2) {
+                debug("%s: Unsupported bus width %d\n", __func__,
+                        config.width);
+                return -1;
+        }
+        smc_bw_conf = SROMC_DATA16_WIDTH(config.bank)
+                        | SROMC_BYTE_ENABLE(config.bank);
+
+        smc_bc_conf = SROMC_BC_TACS(config.timing[FDT_SROM_TACS])   |\
+                        SROMC_BC_TCOS(config.timing[FDT_SROM_TCOS]) |\
+                        SROMC_BC_TACC(config.timing[FDT_SROM_TACC]) |\
+                        SROMC_BC_TCOH(config.timing[FDT_SROM_TCOH]) |\
+                        SROMC_BC_TAH(config.timing[FDT_SROM_TAH])   |\
+                        SROMC_BC_TACP(config.timing[FDT_SROM_TACP]) |\
+                        SROMC_BC_PMC(config.timing[FDT_SROM_PMC]);
+
+        /* Select and configure the SROMC bank */
+        exynos_pinmux_config(PERIPH_ID_SROMC, config.bank);
+        s5p_config_sromc(config.bank, smc_bw_conf, smc_bc_conf);
+        return smc911x_initialize(0, base_addr);
+#endif
+        return 0;
+}
+
+#ifdef CONFIG_SMC911X   //copy form s5pv310. 
+static void smc9115_pre_init(void)
+{
+        u32 smc_bw_conf, smc_bc_conf;
+
+        /* gpio configuration GPY0CON */
+        s5p_gpio_cfg_pin(&gpio2->y0, CONFIG_ENV_SROM_BANK, GPIO_FUNC(2));
+
+        /* Ethernet needs bus width of 16 bits */
+        smc_bw_conf = SROMC_DATA16_WIDTH(CONFIG_ENV_SROM_BANK);
+        smc_bc_conf = SROMC_BC_TACS(0x0F) | SROMC_BC_TCOS(0x0F)
+                        | SROMC_BC_TACC(0x0F) | SROMC_BC_TCOH(0x0F)
+                        | SROMC_BC_TAH(0x0F)  | SROMC_BC_TACP(0x0F)
+                        | SROMC_BC_PMC(0x0F);
+
+        /* Select and configure the SROMC bank */
+        s5p_config_sromc(CONFIG_ENV_SROM_BANK, smc_bw_conf, smc_bc_conf);
+}
+#endif
+
 int board_init(void)
 {
 	gpio1 = (struct exynos4_gpio_part1 *) EXYNOS4_GPIO_PART1_BASE;
@@ -481,6 +548,9 @@ int board_init(void)
 
 #ifdef CONFIG_SOFT_SPI
 	soft_spi_init();
+#endif
+#ifdef CONFIG_SMC911X
+	//smc9115_pre_init();
 #endif
 	//check_hw_revision();  //exynos4412 Not use
 	printf("HW Revision:\t0x%x\n", board_rev);
