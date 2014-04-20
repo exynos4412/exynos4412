@@ -282,7 +282,7 @@ static void exynos5_sromc_config(int flags)
 static void exynos4_sromc_config(int flags)
 {
 	struct exynos4_gpio_part2 *gpio2 =
-		(struct exynos5_gpio_part2 *) samsung_get_base_gpio_part1();
+		(struct exynos5_gpio_part2 *) samsung_get_base_gpio_part2();
 	int i;
 
 	/*
