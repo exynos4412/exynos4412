@@ -249,7 +249,7 @@ void exynos_fimd_window_off(unsigned int win_id)
 	cfg &= ~EXYNOS_WINSHMAP_CH_DISABLE(win_id);
 	writel(cfg, &fimd_ctrl->winshmap);
 }
-
+#ifdef CONFIG_DDR_DEBUG
 void exynos_fimd_dump(void)
 {
 	int i;
@@ -259,7 +259,7 @@ void exynos_fimd_dump(void)
 		dump++;
 	}
 }
-
+#endif
 void exynos_fimd_lcd_init(vidinfo_t *vid)
 {
 	unsigned int cfg = 0, rgb_mode;
@@ -366,7 +366,9 @@ void exynos_fimd_lcd_init(vidinfo_t *vid)
 	exynos_fimd_window_on(pvid->win_id);
 
 	exynos_fimd_set_dp_clkcon(pvid->dp_enabled);
+#ifdef CONFIG_DDR_DEBUG
 	exynos_fimd_dump();
+#endif
 }
 
 unsigned long exynos_fimd_calc_fbsize(void)

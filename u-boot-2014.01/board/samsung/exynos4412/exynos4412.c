@@ -409,8 +409,8 @@ void exynos_lcd_power_on(void)
 
 vidinfo_t panel_info = {
 	.vl_freq	= 70,
-	.vl_col		= 768,
-	.vl_row		= 1024,
+	.vl_col		= 1024,
+	.vl_row		= 768,
 	.vl_width	= 1024,
 	.vl_height	= 768,
 	.vl_clkp	= CONFIG_SYS_HIGH,
@@ -418,7 +418,7 @@ vidinfo_t panel_info = {
 	.vl_vsp		= CONFIG_SYS_HIGH,
 	.vl_dp		= CONFIG_SYS_LOW,
 
-	.vl_bpix	= 5,	/* Bits per pixel */
+	.vl_bpix	= 5,	/* Bits per pixel */ //32bpp
 
 	/* LD9040 LCD Panel */
 	.vl_hspw	= 32,
