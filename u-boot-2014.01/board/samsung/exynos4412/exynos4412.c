@@ -424,6 +424,18 @@ void exynos_lcd_power_on(void)
 	pmic_set_output(p, MAX8998_REG_ONOFF3, MAX8998_LDO17, LDO_ON);
 	pmic_set_output(p, MAX8998_REG_ONOFF2, MAX8998_LDO7, LDO_ON);
 #endif
+
+#ifdef CONFIG_POWER_S5M8767A
+	struct pmic *p = pmic_get("MAX8998_PMIC");
+
+	if (!p)
+		return;
+
+	if (pmic_probe(p))
+		return;
+	/*Lcd 3V3 on S5m8767A:ldo9*/
+	pmic_reg_write(p, S5M8767_REG_LDO9CTRL, 0x80|0x32);
+#endif
 }
 
 vidinfo_t panel_info = {
