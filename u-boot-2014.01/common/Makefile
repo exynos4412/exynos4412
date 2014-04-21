@@ -120,7 +120,7 @@ ifdef CONFIG_PHYLIB
 obj-$(CONFIG_CMD_MII) += cmd_mdio.o
 endif
 obj-$(CONFIG_CMD_MISC) += cmd_misc.o
-obj-$(CONFIG_CMD_MMC) += cmd_mmc.o
+obj-$(CONFIG_CMD_MMC) += cmd_mmc.o cmd_mmc_fdisk.o
 obj-$(CONFIG_CMD_MMC_SPI) += cmd_mmc_spi.o
 obj-$(CONFIG_MP) += cmd_mp.o
 obj-$(CONFIG_CMD_MTDPARTS) += cmd_mtdparts.o
