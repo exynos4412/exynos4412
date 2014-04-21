@@ -382,12 +382,13 @@ int universal_spi_read(void);
 #define CONFIG_ENV_SROM_BANK     1
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_NET
-//#define CONFIG_ETHADDR      02:80:AD:20:31:E8  //lan9215 have eeprom, mac addr 
-#define CONFIG_IPADDR       192.168.0.18  //dpb ip
-#define CONFIG_SERVERIP     192.168.0.5   //host pc ip
-#define CONFIG_GATEWAYIP    192.168.0.1
+#define CONFIG_ETHADDR      02:80:AD:20:31:E8  //lan9215 have eeprom, mac addr 
+#define CONFIG_IPADDR       192.168.1.18  //dpb ip
+#define CONFIG_SERVERIP     192.168.1.5   //host pc ip
+#define CONFIG_GATEWAYIP    192.168.1.1
 #define CONFIG_NETMASK      255.255.255.0
-
+#define CONFIG_LOADADDR   0x40008000    //tftp/ftp boot load address
+#define CONFIG_BOOTFILE     "u-boot.bin"
 /*
 * Fast Boot
 */
