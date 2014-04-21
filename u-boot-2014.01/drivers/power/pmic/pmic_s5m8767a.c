@@ -12,7 +12,7 @@
 
 int pmic_init(unsigned char bus)
 {
-	static const char name[] = "S5M8767A_PMIC";
+	static const char name[] = CONFIG_PMIC_NAME;
 	struct pmic *p = pmic_alloc();
 
 	if (!p) {
@@ -20,7 +20,7 @@ int pmic_init(unsigned char bus)
 		return -ENOMEM;
 	}
 
-	puts("Board PMIC init\n");
+	printf("Board PMIC:%s init\n", name);
 
 	p->name = name;
 	p->interface = PMIC_I2C;

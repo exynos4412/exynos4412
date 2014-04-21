@@ -147,7 +147,10 @@ int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	p = pmic_get(name);
 	if (!p)
 		return CMD_RET_FAILURE;
-
+	
+	if(pmic_probe(p))  //add by jf.s for set cur i2c bus. and probe s3c24x0 i2c. must  do
+		return CMD_RET_FAILURE;
+	
 	if (strcmp(cmd, "dump") == 0) {
 		if (pmic_dump(p))
 			return CMD_RET_FAILURE;
@@ -209,7 +212,7 @@ int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(
-	pmic,	CONFIG_SYS_MAXARGS, 1, do_pmic,
+	pmic,	CONFIG_SYS_MAXARGS, 0, do_pmic,
 	"PMIC",
 	"list - list available PMICs\n"
 	"pmic name dump - dump named PMIC registers\n"

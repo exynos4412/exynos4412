@@ -26,6 +26,7 @@
 #endif
 #include <power/pmic.h>
 #include <usb/s3c_udc.h>
+#include <usb.h>
 #include <asm/arch/cpu.h>
 #ifdef CONFIG_POWER_MAX8998
 #include <power/max8998_pmic.h>
@@ -53,8 +54,9 @@ static void init_pmic_lcd(void);
 
 int power_init_board(void)
 {
-	int ret;
-
+#ifdef CONFIG_POWER_S5M8767A
+	int ret, val=-1;
+	struct pmic *pmc;
 	/*
 	 * For PMIC the I2C bus is named as I2C5, but it is connected
 	 * to logical I2C adapter 1
@@ -62,8 +64,16 @@ int power_init_board(void)
 	ret = pmic_init(I2C_1);
 	if (ret)
 		return ret;
+	pmc = pmic_get(CONFIG_PMIC_NAME);
+	if (pmic_probe(pmc)){  //set cur gd->cur_i2c_bus = pmic, run s3c24x0_probe
+		printf("###ERROR:Probe I2c%d\n",pmc->bus);
+		return -1;
+	}
+	pmic_reg_read(pmc, 0, &val);
+	printf("S5M8767A Version:%d\n", val);
 #if 0  //removed by jf.s, we will config S5M8767A
 	init_pmic_lcd();
+#endif
 #endif
 	return 0;
 }
@@ -230,7 +240,14 @@ struct s3c_plat_otg_data s5pc210_otg_data = {
 	.usb_phy_ctrl = EXYNOS4_USBPHY_CONTROL,
 	.usb_flags = PHY0_SLEEP,
 };
+
+int board_usb_init(int index, enum usb_init_type init)
+{
+        debug("USB_udc_probe\n");
+        return s3c_udc_probe(&s5pc210_otg_data);
+}
 #endif
+
 #ifdef CONFIG_DDR_DEBUG
 extern void asm_printc(char c);
 #endif
@@ -535,6 +552,22 @@ static void smc9115_pre_init(void)
 
         /* Select and configure the SROMC bank */
         s5p_config_sromc(CONFIG_ENV_SROM_BANK, smc_bw_conf, smc_bc_conf);
+}
+#endif
+
+#ifdef CONFIG_SYS_I2C_INIT_BOARD
+void i2c_init_board(void)
+{
+	int err;
+#ifdef CONFIG_POWER_S5M8767A
+	/* I2C_1 */
+        err = exynos_pinmux_config(PERIPH_ID_I2C1, PINMUX_FLAG_NONE);
+        if (err) {
+                debug("I2C%d not configured\n", (I2C_1));
+                return;
+        }
+#endif
+
 }
 #endif
 

@@ -301,7 +301,8 @@
  * I2C Settings
  */
 //#define CONFIG_HARD_I2C
-#define CONFIG_CMD_I2C
+#define CONFIG_SYS_I2C_INIT_BOARD
+#define CONFIG_SYS_I2C
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_I2C_S3C24X0  //add hardware i2c
 #define CONFIG_SYS_I2C_S3C24X0_SLAVE     0x0   //only for cpu as slave
@@ -309,11 +310,10 @@
 #define CONFIG_SYS_I2C_SPEED     CONFIG_SYS_I2C_S3C24X0_SPEED
 #define CONFIG_SYS_I2C_SLAVE	 CONFIG_SYS_I2C_S3C24X0_SLAVE
 #define CONFIG_MAX_I2C_NUM    9
-#ifndef CONFIG_HARD_I2C
+#define CONFIG_CMD_I2C
+#if 0  //soft i2c config
 #define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_part1_get_nr(b, 7)
 #define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_part1_get_nr(b, 6)
-
-#define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
 #define CONFIG_SYS_I2C_SOFT_SPEED	50000
 #define CONFIG_SYS_I2C_SOFT_SLAVE	0
@@ -328,6 +328,7 @@
 #define CONFIG_POWER_I2C
 //#define CONFIG_POWER_MAX8998
 #define CONFIG_POWER_S5M8767A
+#define CONFIG_PMIC_NAME  "S5M8767A_PMIC"
 
 #define CONFIG_USB_GADGET
 #define CONFIG_USB_GADGET_S3C_UDC_OTG
