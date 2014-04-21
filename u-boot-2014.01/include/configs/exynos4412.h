@@ -115,9 +115,7 @@
 
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_MISC
-//#undef CONFIG_CMD_NET
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_NET
+#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_XIMG
 #define CONFIG_CMD_CACHE
@@ -303,8 +301,10 @@
  * I2C Settings
  */
 //#define CONFIG_HARD_I2C
+#define CONFIG_CMD_I2C
+#define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_I2C_S3C24X0  //add hardware i2c
-#define CONFIG_SYS_I2C_S3C24X0_SLAVE     0xaa   //only for cpu as slave
+#define CONFIG_SYS_I2C_S3C24X0_SLAVE     0x0   //only for cpu as slave
 #define CONFIG_SYS_I2C_S3C24X0_SPEED     300*1000
 #define CONFIG_SYS_I2C_SPEED     CONFIG_SYS_I2C_S3C24X0_SPEED
 #define CONFIG_SYS_I2C_SLAVE	 CONFIG_SYS_I2C_S3C24X0_SLAVE
@@ -380,4 +380,11 @@ int universal_spi_read(void);
 #define CONFIG_SMC911X_BASE		0x5000000
 #define CONFIG_SMC911X_16_BIT
 #define CONFIG_ENV_SROM_BANK     1
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_NET
+//#define CONFIG_ETHADDR      02:80:AD:20:31:E8  //lan9215 have eeprom, mac addr 
+#define CONFIG_IPADDR       192.168.0.18  //dpb ip
+#define CONFIG_SERVERIP     192.168.0.5   //host pc ip
+#define CONFIG_GATEWAYIP    192.168.0.1
+#define CONFIG_NETMASK      255.255.255.0
 #endif	/* __CONFIG_H */
