@@ -426,7 +426,7 @@ void exynos_lcd_power_on(void)
 #endif
 
 #ifdef CONFIG_POWER_S5M8767A
-	struct pmic *p = pmic_get("MAX8998_PMIC");
+	struct pmic *p = pmic_get(CONFIG_PMIC_NAME);
 
 	if (!p)
 		return;
@@ -583,6 +583,12 @@ void i2c_init_board(void)
 }
 #endif
 
+#ifdef CONFIG_USE_IRQ
+int irq_init_board(void)
+{
+	return 0;
+}
+#endif
 int board_init(void)
 {
 	gpio1 = (struct exynos4_gpio_part1 *) EXYNOS4_GPIO_PART1_BASE;

@@ -401,5 +401,10 @@ int universal_spi_read(void);
 #define CFG_FASTBOOT_PAGESIZE                   (2048)  // Page size of booting device
 #define CFG_FASTBOOT_SDMMC_BLOCKSIZE            (512)   // Block size of sdmmc
 #define CFG_PARTITION_START			(0x4000000)
-
+/*
+*IRQ/FIQ Settings
+*/
+#define CONFIG_USE_IRQ
+#define CONFIG_STACKSIZE_IRQ      (8*1024)    //IRQ stack 8k
+#define CONFIG_STACKSIZE_FIQ	   (4*1024)    // FIQ stack 4k
 #endif	/* __CONFIG_H */
