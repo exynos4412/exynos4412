@@ -102,6 +102,7 @@
 #define CONFIG_SDHCI
 #define CONFIG_S5P_SDHCI
 #define CONFIG_DEBUG_MMC   //dump mmcinfo
+#undef CONFIG_DEBUG_MMC
 /* PWM */
 #define CONFIG_PWM			1
 

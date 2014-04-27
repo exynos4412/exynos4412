@@ -8,7 +8,9 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-
+ #ifdef CONFIG_DEBUG_MMC
+#define DEBUG
+#endif
 #include <common.h>
 #include <config.h>
 #include <exports.h>
@@ -826,7 +828,6 @@ do_fat_read_at(const char *filename, unsigned long pos, void *buffer,
 	__u32 root_cluster = 0;
 	int rootdir_size = 0;
 	int j;
-
 	if (read_bootsectandvi(&bs, &volinfo, &mydata->fatsize)) {
 		debug("Error: reading boot sector\n");
 		return -1;
@@ -892,7 +893,6 @@ do_fat_read_at(const char *filename, unsigned long pos, void *buffer,
 	/* Make a copy of the filename and convert it to lowercase */
 	strcpy(fnamecopy, filename);
 	downcase(fnamecopy);
-
 	if (*fnamecopy == '\0') {
 		if (!dols)
 			goto exit;
