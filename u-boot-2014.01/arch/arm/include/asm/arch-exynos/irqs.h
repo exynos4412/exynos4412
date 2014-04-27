@@ -93,6 +93,7 @@
 #define EINT_OFFSET(irq)	((irq) < S5P_EINT_BASE2 ? \
 						((irq) - S5P_EINT_BASE1) : \
 						((irq) + 16 - S5P_EINT_BASE2))
+#define EINT_REG_NR(x)			(EINT_OFFSET(x) >> 3)
 
 #define IRQ_EINT_BIT(x)		EINT_OFFSET(x)
 

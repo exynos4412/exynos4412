@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <errno.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/interrupts.h>
 #include <asm/proc-armv/ptrace.h>
@@ -41,6 +42,50 @@ void irq_install_handler (int irq, interrupt_handler_t handle_irq, void *data)
 
 	IRQ_HANDLER[irq].m_data = data;
 	IRQ_HANDLER[irq].m_func = handle_irq;
+}
+
+ int exynos_irq_eint_set_type(int irq, unsigned int type)
+{
+	int offs = EINT_OFFSET(irq);
+	int shift;
+	u32 ctrl, mask;
+	u32 newvalue = 0;
+
+	switch (type) {
+	case IRQ_TYPE_EDGE_RISING:
+		newvalue = S5P_IRQ_TYPE_EDGE_RISING;
+		break;
+
+	case IRQ_TYPE_EDGE_FALLING:
+		newvalue = S5P_IRQ_TYPE_EDGE_FALLING;
+		break;
+
+	case IRQ_TYPE_EDGE_BOTH:
+		newvalue = S5P_IRQ_TYPE_EDGE_BOTH;
+		break;
+
+	case IRQ_TYPE_LEVEL_LOW:
+		newvalue = S5P_IRQ_TYPE_LEVEL_LOW;
+		break;
+
+	case IRQ_TYPE_LEVEL_HIGH:
+		newvalue = S5P_IRQ_TYPE_LEVEL_HIGH;
+		break;
+
+	default:
+		printf( "No such irq type %d", type);
+		return -EINVAL;
+	}
+
+	shift = (offs & 0x7) * 4;
+	mask = 0x7 << shift;
+
+	//ctrl = readl(S5P_EINT_CON(EINT_REG_NR(irq)));
+	ctrl &= ~mask;
+	ctrl |= newvalue << shift;
+	//writel(ctrl, S5P_EINT_CON(EINT_REG_NR(irq)));
+
+	return 0;
 }
 
 int __irq_init_board(void)

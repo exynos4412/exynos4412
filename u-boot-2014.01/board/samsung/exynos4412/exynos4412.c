@@ -586,6 +586,17 @@ void i2c_init_board(void)
 #ifdef CONFIG_USE_IRQ
 int irq_init_board(void)
 {
+	int ctrl;
+	  /* gpio configuration GPX2CON[0-1] */
+        s5p_gpio_cfg_pin(&gpio2->x2, 0, GPIO_IRQ); 
+        s5p_gpio_cfg_pin(&gpio2->x2, 1, GPIO_IRQ);
+	ctrl = readl(0x11000E08); //GPX2-1/1 failing irq type
+	ctrl &= 0xffffff00;
+	ctrl |= 0x22;
+	writel(ctrl,0x11000E08 );
+	writel(1,0x10480000);
+	writel(0xffffffff,0x10490080);
+	writel(0xffffffff,0x10490100);
 	return 0;
 }
 #endif
