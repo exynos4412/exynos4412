@@ -99,6 +99,8 @@
 
 #define MMC_HS_TIMING		0x00000100
 #define MMC_HS_52MHZ		0x2
+#define MMC_HS_52MHZ_1_8V_3V_IO	(0x1<<2)
+#define MMC_HS_52MHZ_1_2V_IO	(0x1<<3)
 
 #define OCR_BUSY		0x80000000
 #define OCR_HCS			0x40000000
@@ -158,6 +160,7 @@
 #define EXT_CSD_HS_TIMING		185	/* R/W */
 #define EXT_CSD_REV			192	/* RO */
 #define EXT_CSD_CARD_TYPE		196	/* RO */
+#define EXT_CSD_REV		192	/* RO */
 #define EXT_CSD_SEC_CNT			212	/* RO, 4 bytes */
 #define EXT_CSD_HC_WP_GRP_SIZE		221	/* RO */
 #define EXT_CSD_HC_ERASE_GRP_SIZE	224	/* RO */
@@ -173,10 +176,14 @@
 
 #define EXT_CSD_CARD_TYPE_26	(1 << 0)	/* Card can run at 26MHz */
 #define EXT_CSD_CARD_TYPE_52	(1 << 1)	/* Card can run at 52MHz */
+#define EXT_CSD_CARD_TYPE_52_DDR_18_30	(1<<2)	/* Card can run at 52MHz DDR 1.8V or 3V */
+#define EXT_CSD_CARD_TYPE_52_DDR_12	(1<<3)	/* Card can run at 52MHz DDR 1.2V */
 
 #define EXT_CSD_BUS_WIDTH_1	0	/* Card is in 1 bit mode */
 #define EXT_CSD_BUS_WIDTH_4	1	/* Card is in 4 bit mode */
 #define EXT_CSD_BUS_WIDTH_8	2	/* Card is in 8 bit mode */
+#define EXT_CSD_BUS_WIDTH_4_DDR	5	/* Card is in 4 bit DDR mode */
+#define EXT_CSD_BUS_WIDTH_8_DDR	6	/* Card is in 8 bit DDR mode */
 
 #define EXT_CSD_BOOT_ACK_ENABLE			(1 << 6)
 #define EXT_CSD_BOOT_PARTITION_ENABLE		(1 << 3)
@@ -186,7 +193,22 @@
 #define EXT_CSD_BOOT_ACK(x)		(x << 6)
 #define EXT_CSD_BOOT_PART_NUM(x)	(x << 3)
 #define EXT_CSD_PARTITION_ACCESS(x)	(x << 0)
+/* Controller */
+#define MMC_BUS_WIDTH_1		   0
+#define MMC_BUS_WIDTH_4		   1
+#define MMC_BUS_WIDTH_8		   2
+#define MMC_BUS_WIDTH_4_DDR	   5
+#define MMC_BUS_WIDTH_8_DDR	   6
 
+#define MMC_MODE_HS			0x001
+#define MMC_MODE_HS_52MHz		0x010
+#define MMC_MODE_HS_52MHz_DDR_18_3V	0x020
+#define MMC_MODE_HS_52MHz_DDR_12V	0x040
+
+#define MMC_MODE_4BIT		0x100
+#define MMC_MODE_8BIT		0x200
+#define MMC_MODE_4BIT_DDR	0x400
+#define MMC_MODE_8BIT_DDR	0x800
 
 #define R1_ILLEGAL_COMMAND		(1 << 22)
 #define R1_APP_CMD			(1 << 5)

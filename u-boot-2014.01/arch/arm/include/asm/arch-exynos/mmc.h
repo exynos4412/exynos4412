@@ -62,4 +62,11 @@ static inline int s5p_mmc_init(int index, int bus_width)
 
 	return s5p_sdhci_init(base, index, bus_width);
 }
+
+static inline u32 s5p_mshc_base(void)
+{
+	unsigned int base = samsung_get_base_mmc() +
+				(S5P_MMC_DEV_OFFSET * 4);
+	return base;
+}
 #endif

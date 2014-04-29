@@ -171,7 +171,7 @@ int board_mmc_init(bd_t *bis)
 	if (err)
 		debug("SDMMC0 not configured\n");
 	else
-		err = s5p_mmc_init(0, 8);
+		err = s5p_mshc_initialize();//err = s5p_mmc_init(0, 8);
 
 	/* T-flash detect */
 	s5p_gpio_cfg_pin(&gpio2->x0, 7, 0xf);
