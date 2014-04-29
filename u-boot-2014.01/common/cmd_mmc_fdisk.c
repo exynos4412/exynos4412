@@ -313,7 +313,14 @@ int get_mmc_block_count(char *device_name)
 	}	
 	
 	//block_count = mmc->capacity * (mmc->read_bl_len / BLOCK_SIZE);
-	block_count = mmc->capacity /mmc->read_bl_len;  //lba mode. note u64 when more than 4x512G
+	
+	/*
+		Exam:mmc->block_dev.lba = lldiv(mmc->capacity, mmc->read_bl_len);
+		Error:Can't use u64 div. must use func:lldiv.
+		We can use mmc->block_dev.lba
+		block_count = mmc->capacity /mmc->read_bl_len;  //lba mode. note u64 when more than 4x512G
+	*/
+	block_count = mmc->block_dev.lba;
 //	printf("block_count = %d\n", block_count);
 	return block_count;
 }
