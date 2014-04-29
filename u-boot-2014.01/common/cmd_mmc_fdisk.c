@@ -113,7 +113,7 @@ void get_SDInfo(int block_count, SDInfo *sdInfo)
         int H_start = 1, S_start = 1;
         int diff_min = 0, diff = 0;
 
-        if(block_count >= _8_4GB)
+        if(block_count >= (_8_4GB/BLOCK_SIZE))
                 sdInfo->addr_mode = LBA_MODE;
         else
                 sdInfo->addr_mode = CHS_MODE;
@@ -312,8 +312,8 @@ int get_mmc_block_count(char *device_name)
 		return -1;
 	}	
 	
-	block_count = mmc->capacity * (mmc->read_bl_len / BLOCK_SIZE);
-		
+	//block_count = mmc->capacity * (mmc->read_bl_len / BLOCK_SIZE);
+	block_count = mmc->capacity /mmc->read_bl_len;  //lba mode. note u64 when more than 4x512G
 //	printf("block_count = %d\n", block_count);
 	return block_count;
 }

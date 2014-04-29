@@ -164,10 +164,10 @@ int board_mmc_init(bd_t *bis)
 
 	/*
 	 * MMC device init
-	 * mmc0	 : eMMC (8-bit buswidth)
+	 * mmc4	 : eMMC (8-bit buswidth)
 	 * mmc2	 : SD card (4-bit buswidth)
 	 */
-	err = exynos_pinmux_config(PERIPH_ID_SDMMC0, PINMUX_FLAG_8BIT_MODE);
+	err = exynos_pinmux_config(PERIPH_ID_SDMMC4, PINMUX_FLAG_8BIT_MODE);
 	if (err)
 		debug("SDMMC0 not configured\n");
 	else
