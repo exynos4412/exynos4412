@@ -375,6 +375,7 @@ struct mshci_host {
 	unsigned int		timeout_clk;	/* Timeout freq (KHz) */
 	unsigned int		clock;		/* Current clock (MHz) */
 	unsigned short		power;		/* Current voltage */
+	unsigned int            bus_width;   /* Current bus width*/
 	dma_addr_t		adma_addr;	/* Mapped ADMA descr. table */
 };
 

@@ -21,7 +21,7 @@
 #ifndef CONFIG_SYS_MMC_MAX_BLK_COUNT
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT 65535
 #endif
-
+//#define CONFIG_MMC_TRACE
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
 
@@ -214,19 +214,23 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 
 	if (mmc_send_cmd(mmc, &cmd, &data))
 		return 0;
-
-	if (blkcnt > 1) {
-		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
-		cmd.cmdarg = 0;
-		cmd.resp_type = MMC_RSP_R1b;
-		if (mmc_send_cmd(mmc, &cmd, NULL)) {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-			printf("mmc fail to send stop cmd\n");
+#ifdef CONFIG_S5P_MSHCI
+	if(strcmp(mmc->name, "S5P_MSHC0" )){
 #endif
-			return 0;
+		if (blkcnt > 1) {
+			cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
+			cmd.cmdarg = 0;
+			cmd.resp_type = MMC_RSP_R1b;
+			if (mmc_send_cmd(mmc, &cmd, NULL)) {
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+				printf("mmc fail to send stop cmd\n");
+#endif
+				return 0;
+			}
 		}
+#ifdef CONFIG_S5P_MSHCI
 	}
-
+#endif
 	return blkcnt;
 }
 
@@ -431,7 +435,9 @@ int mmc_complete_op_cond(struct mmc *mmc)
 
 	mmc->high_capacity = ((mmc->ocr & OCR_HCS) == OCR_HCS);
 	mmc->rca = 0;
-
+#ifdef CONFIG_MMC_TRACE
+	printf("MMc Version:0x%x, AccessMode:%s\n", mmc->version,mmc->high_capacity?"Secort":"Byte" );
+#endif
 	return 0;
 }
 
@@ -494,7 +500,9 @@ static int mmc_change_freq(struct mmc *mmc)
 	/* Only version 4 supports high-speed */
 	if (mmc->version < MMC_VERSION_4)
 		return 0;
-
+#ifdef CONFIG_MMC_TRACE
+	printf("-----------%s:Test HighSpeed Mode\n", __func__);
+#endif
 	err = mmc_send_ext_csd(mmc, ext_csd);
 
 	if (err)
@@ -737,12 +745,12 @@ static const int multipliers[] = {
 	13,
 	15,
 	20,
-	25,
+	26, //25
 	30,
 	35,
 	40,
 	45,
-	50,
+	52, //26
 	55,
 	60,
 	70,
@@ -884,7 +892,7 @@ static int mmc_startup(struct mmc *mmc)
 		mmc->write_bl_len = mmc->read_bl_len;
 	else
 		mmc->write_bl_len = 1 << ((cmd.response[3] >> 22) & 0xf);
-
+	//csd[73:62]=csize !=0xFFF is less than 4g. more than 4g, use ext_csd[215:212]
 	if (mmc->high_capacity) {
 		csize = (mmc->csd[1] & 0x3f) << 16
 			| (mmc->csd[2] & 0xffff0000) >> 16;
@@ -933,6 +941,20 @@ static int mmc_startup(struct mmc *mmc)
 	mmc->erase_grp_size = 1;
 	mmc->part_config = MMCPART_NOAVAILABLE;
 	if (!IS_SD(mmc) && (mmc->version >= MMC_VERSION_4)) {
+#if 0 //mmc def use bus_width_1
+		err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_HS_TIMING, 0);
+		if (err){
+			printf("###ERR:mmc switch error!\n");
+			return err;
+		}
+		err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+				EXT_CSD_BUS_WIDTH,
+				EXT_CSD_BUS_WIDTH_4);	
+		if (err){
+			printf("###ERR:mmc switch EXT_CSD_BUS_WIDTH_1 error!\n");
+			return err;
+		}
+#endif
 		/* check  ext_csd version and capacity */
 		err = mmc_send_ext_csd(mmc, ext_csd);
 		if (!err && (ext_csd[EXT_CSD_REV] >= 2)) {
@@ -985,6 +1007,9 @@ static int mmc_startup(struct mmc *mmc)
 			mmc->erase_grp_size =
 				ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] *
 					MMC_MAX_BLOCK_LEN * 1024;
+			#ifdef CONFIG_MMC_TRACE
+			printf("###mmc->erase_grp_size=%d\n", mmc->erase_grp_size );
+			#endif
 		} else {
 			/* Calculate the group size from the csd value. */
 			int erase_gsz, erase_gmul;
@@ -1002,7 +1027,11 @@ static int mmc_startup(struct mmc *mmc)
 		mmc->capacity_boot = ext_csd[EXT_CSD_BOOT_MULT] << 17;
 
 		mmc->capacity_rpmb = ext_csd[EXT_CSD_RPMB_MULT] << 17;
-
+		#ifdef CONFIG_MMC_TRACE
+		printf("###mmc->part_config=%d\n", mmc->part_config );
+		printf("###mmc->capacity_boot=%d\n", mmc->capacity_boot );
+		printf("###mmc->capacity_rpmb=%d\n", mmc->capacity_rpmb );
+		#endif
 		for (i = 0; i < 4; i++) {
 			int idx = EXT_CSD_GP_SIZE_MULT + i * 3;
 			mmc->capacity_gp[i] = (ext_csd[idx + 2] << 16) +
@@ -1010,6 +1039,9 @@ static int mmc_startup(struct mmc *mmc)
 			mmc->capacity_gp[i] *=
 				ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE];
 			mmc->capacity_gp[i] *= ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
+			#ifdef CONFIG_MMC_TRACE
+			printf("###mmc->capacity_gp[%d]=%d\n", i,mmc->capacity_gp[i]);
+			#endif
 		}
 	}
 
@@ -1143,7 +1175,6 @@ static int mmc_startup(struct mmc *mmc)
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBDISK_SUPPORT)
 	init_part(&mmc->block_dev);
 #endif
-
 	return 0;
 }
 
@@ -1222,22 +1253,29 @@ int mmc_start_init(struct mmc *mmc)
 
 	if (err)
 		return err;
-
+#if defined(CONFIG_S5P_SDHCI) || defined(CONFIG_S5P_MSHCI)
+	if(!strcmp(mmc->name, "S5P_MSHC0" ))
+		mmc->bus_width = MMC_BUS_WIDTH_1; //emmc deft
+	else
+		mmc->bus_width = MMC_BUS_WIDTH_4;
+#else
 	mmc_set_bus_width(mmc, 1);
+#endif
 	mmc_set_clock(mmc, 1);
 
 	/* Reset the Card */
 	err = mmc_go_idle(mmc);
 
-	if (err)
+	if (err){
+		printf("###ERR:Reset Card!\n");
 		return err;
-
+	}
 	/* The internal partition reset to user partition(0) at every CMD0*/
 	mmc->part_num = 0;
 
 	/* Test for SD version 2 */
 	err = mmc_send_if_cond(mmc);
-
+	
 	/* Now try to get the SD card's operating condition */
 	err = sd_send_op_cond(mmc);
 
@@ -1253,9 +1291,9 @@ int mmc_start_init(struct mmc *mmc)
 		}
 	}
 
-	if (err == IN_PROGRESS)
+	if (err == IN_PROGRESS){
 		mmc->init_in_progress = 1;
-
+	}
 	return err;
 }
 
@@ -1281,8 +1319,9 @@ int mmc_init(struct mmc *mmc)
 	int err = IN_PROGRESS;
 	unsigned start = get_timer(0);
 
-	if (mmc->has_init)
+	if (mmc->has_init){
 		return 0;
+	}
 	if (!mmc->init_in_progress)
 		err = mmc_start_init(mmc);
 

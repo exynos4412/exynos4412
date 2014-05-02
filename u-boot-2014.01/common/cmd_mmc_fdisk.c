@@ -339,7 +339,8 @@ int get_mmc_mbr(char *device_name, unsigned char *mbr)
 	{
 		printf("mmc/sd device is NOT founded.\n");
 		return -1;
-	}	
+	}else
+		mmc_init(mmc);
 	
 	rv = mmc->block_dev.block_read(dev_num, 0, 1, mbr);
 
@@ -363,7 +364,8 @@ int put_mmc_mbr(unsigned char *mbr, char *device_name)
 	{
 		printf("mmc/sd device is NOT founded.\n");
 		return -1;
-	}	
+	}else
+		mmc_init(mmc);	
 
 	rv = mmc->block_dev.block_write(dev_num, 0, 1, mbr);
 #if 0 //removed by jf.s

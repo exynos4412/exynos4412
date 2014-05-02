@@ -118,9 +118,6 @@ after_copy:
 	ldr r3, =0x4000
 	orr r1, r1, r3
 	str r1, [r0, r2]
-#ifdef CONFIG_ENABLE_MMU
-	bl enable_mmu
-#endif
 #if 0	
 	ldr r0, _board_init_f
 	mov pc, r0
@@ -131,6 +128,9 @@ _board_init_f:
 	ldr r0, =(CONFIG_PHY_UBOOT_BASE)
 	mov pc, r0
 after_copy_1:
+#ifdef CONFIG_ENABLE_MMU
+	bl enable_mmu
+#endif
 	pop {pc}
 #endif
 read_om:

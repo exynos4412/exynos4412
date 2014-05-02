@@ -56,12 +56,20 @@ static inline void unmap_physmem(void *vaddr, unsigned long flags)
 {
 
 }
+#ifdef CONFIG_ENABLE_MMU
+static inline ulong virt_to_phys(ulong addr)
+{
+        if ((0xc0000000 <= addr) && (addr < 0xe0000000))
+                return (addr - 0xc0000000 + 0x40000000);
 
+        return addr;
+}
+#else
 static inline phys_addr_t virt_to_phys(void * vaddr)
 {
 	return (phys_addr_t)(vaddr);
 }
-
+#endif
 /*
  * Generic virtual read/write.  Note that we don't support half-word
  * read/writes.  We define __arch_*[bl] here, and leave __arch_*w

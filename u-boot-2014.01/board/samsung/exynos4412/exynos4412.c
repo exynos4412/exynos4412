@@ -141,7 +141,7 @@ int checkboard(void)
 int board_mmc_init(bd_t *bis)
 {
 	int err;
-
+#if 0
 	switch (get_hwrev()) {
 	case 0:
 		/*
@@ -161,7 +161,7 @@ int board_mmc_init(bd_t *bis)
 		s5p_gpio_direction_output(&gpio1->e1, 3, 1);
 		break;
 	}
-
+#endif
 	/*
 	 * MMC device init
 	 * mmc4	 : eMMC (8-bit buswidth)
@@ -169,7 +169,7 @@ int board_mmc_init(bd_t *bis)
 	 */
 	err = exynos_pinmux_config(PERIPH_ID_SDMMC4, PINMUX_FLAG_8BIT_MODE);
 	if (err)
-		debug("SDMMC0 not configured\n");
+		printf("SDMMC4 not configured\n");
 	else
 		err = s5p_mshc_initialize();//err = s5p_mmc_init(0, 8);
 

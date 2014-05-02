@@ -243,7 +243,8 @@ static void mshci_prepare_data(struct mshci_host *host, struct mmc_data *data)
 	mshci_reset_fifo(host);
 
 	pdesc_dmac = idmac_desc;
-
+	dbg("data->blocks: %d data->blocksize: %d desc 0x%x\n", (u32)data->blocks, 
+										(u32)data->blocksize, idmac_desc);
 	blksz = data->blocksize;
 	data_cnt = data->blocks;
 
@@ -376,8 +377,12 @@ s5p_mshc_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	for (i=0; i<COMMAND_TIMEOUT; i++) {
 		mask = readl(host->ioaddr + MSHCI_RINTSTS);
 		if (mask & INTMSK_CDONE) {
-			if (!data)
+			if (!data){
+				dbg("====MSHCI_RINTSTS:0x%x\n", mask);
 				writel(mask, host->ioaddr + MSHCI_RINTSTS);
+			}
+			else
+				dbg("====MSHCI_RINTSTS:0x%x\n", mask);
 			break;
 		}
 	}
@@ -424,7 +429,7 @@ s5p_mshc_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		writel(mask, host->ioaddr + MSHCI_RINTSTS);
 		if (mask & (DATA_ERR | DATA_TOUT)) {
 			printf("error during transfer: 0x%08x\n", mask);
-			
+			mshci_dumpregs_err(host);
 			/* make sure disable IDMAC and IDMAC_Interrupts */
 			mshci_writel(host, (mshci_readl(host, MSHCI_CTRL) & 
 					~(DMA_ENABLE|ENABLE_IDMAC)), MSHCI_CTRL);
@@ -476,8 +481,10 @@ static void mshci_clock_onoff(struct mshci_host *host, int val)
 	}
 }
 
-#define MAX_EMMC_CLOCK	(52000000) /* max clock 52Mhz */
+#define MAX_EMMC_CLOCK	(52000000) /* max clock 50Mhz */
 #define  CLK_DIV_FSYS3  (readl(EXYNOS4X12_CLOCK_BASE + CLK_DIV_FSYS3_OFFSET))
+#define CLK_MMC4_DIV_REG   (EXYNOS4X12_CLOCK_BASE + CLK_DIV_FSYS3_OFFSET)
+#define CLK_MMC4_SEL_REG   (EXYNOS4X12_CLOCK_BASE + CLK_SRC_FSYS_OFFSET)
 static void mshci_change_clock(struct mshci_host *host, uint clock)
 {
 	int div;
@@ -501,6 +508,8 @@ static void mshci_change_clock(struct mshci_host *host, uint clock)
 	}
 
 	/* Calculate SCLK_MMC4 */
+	writel((readl(CLK_MMC4_SEL_REG)&(~(0xf<<16))|(6<<16)) ,CLK_MMC4_SEL_REG );//mmc4 sel mpll
+	writel((0<<0)|(1<<8), CLK_MMC4_DIV_REG); //set sclk_mmc 400Mhz
 	div_mmc = (CLK_DIV_FSYS3 & (0x0000000f)) + 1;
 	div_mmc_pre = ((CLK_DIV_FSYS3 & (0x0000ff00))>>8) + 1;
 	mpll_clock = get_pll_clk(MPLL);
@@ -514,13 +523,40 @@ static void mshci_change_clock(struct mshci_host *host, uint clock)
 	/* CLKDIV */
 	for (div=1 ; div <= 0xFF; div++)
 	{
-		if (((sclk_mmc / 4) /(2*div)) <= clock) {
-			mshci_writel(host, div, MSHCI_CLKDIV);
-			break;
- 		}
+#if 0
+		if(host->bus_width != MMC_BUS_WIDTH_8_DDR){
+			if (((sclk_mmc / 2) /(2*div)) <= clock) {
+				mshci_writel(host, div, MSHCI_CLKDIV);
+				dbg("div: %08d\n", div);
+				dbg("CLOCK:: %dKHz\n", ((sclk_mmc/2)/(div*2))/1000);
+				break;
+	 		}
+		}else{
+			if (((sclk_mmc / 4) /(2*div)) <= clock) {
+				mshci_writel(host, div, MSHCI_CLKDIV);
+				dbg("div: %08d\n", div);
+				dbg("CLOCK:: %dKHz\n", ((sclk_mmc/4)/(div*2))/1000);
+				break;
+	 		}
+		}
+#else
+		if (proid_is_exynos4412()){
+			if (((sclk_mmc / 4) /(2*div)) <= clock) {
+				mshci_writel(host, div, MSHCI_CLKDIV);
+				dbg("div: %08d\n", div);
+				dbg("CLOCK:: %dKHz\n", ((sclk_mmc/4)/(div*2))/1000);
+				break;
+		 	}
+		}else{
+			if (((sclk_mmc / 2) /(2*div)) <= clock) {
+				mshci_writel(host, div, MSHCI_CLKDIV);
+				dbg("div: %08d\n", div);
+				dbg("CLOCK:: %dKHz\n", ((sclk_mmc/2)/(div*2))/1000);
+				break;
+		 	}
+		}
+#endif
  	}
-	dbg("div: %08d\n", div);
-	dbg("CLOCK:: %dKHz\n", ((sclk_mmc/4)/(div*2))/1000);
  
 	mshci_writel(host, div, MSHCI_CLKDIV);
 
@@ -558,16 +594,16 @@ static void s5p_mshc_set_ios(struct mmc *mmc)
 
 	sdr = 0x00010001;
 	ddr = 0x00020002;
-
+	host->bus_width = mmc->bus_width;
 	if (mmc->clock > 0) {
 		mshci_change_clock(host, mmc->clock);
 	}
 
-	if (mmc->bus_width == MMC_BUS_WIDTH_8) { 
+	if (mmc->bus_width == 8) { 
 		dbg("MMC_BUS_WIDTH_8\n");
 		mshci_writel(host, (0x1<<16), MSHCI_CTYPE);
 		mode = SDR;
-	} else if (mmc->bus_width == MMC_BUS_WIDTH_4) {
+	} else if (mmc->bus_width == 4) {
 		dbg("MMC_BUS_WIDTH_4\n");
 		mshci_writel(host, (0x1<<0), MSHCI_CTYPE);
 		mode = SDR;
@@ -586,7 +622,7 @@ static void s5p_mshc_set_ios(struct mmc *mmc)
 		mshci_writel(host, (0x0<<0), MSHCI_CTYPE);
 		mode = SDR;
 	}
-
+	
 	if (mode) {
 		dbg("Phase Shift Register: 0x%08x\n", ddr);
 		mshci_writel(host, ddr, MSHCI_CLKSEL);
@@ -601,8 +637,6 @@ static void s5p_mshc_set_ios(struct mmc *mmc)
 static void mshci_fifo_init(struct mshci_host *host)
 {
 	int fifo_val, fifo_depth, fifo_threshold;
-
-	fifo_val = mshci_readl(host, MSHCI_FIFOTH);
 
 	if (host->version == 0x240a)
 		fifo_depth = 0x80;
@@ -629,6 +663,7 @@ static void mshci_init(struct mshci_host *host)
 	mshci_writel(host, 1<<0, MSHCI_PWREN);
 
 	mshci_reset_all(host);
+	
 	mshci_fifo_init(host);
 
 	/* It clears all pending interrupts */
@@ -704,7 +739,7 @@ int s5p_mshc_initialize(void)
 				MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
 	mmc->f_min = 400000;
-	mmc->f_max = 50000000;
+	mmc->f_max = 52000000;
 
 	mshc_host.clock = 0;
 

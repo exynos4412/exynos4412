@@ -722,6 +722,7 @@ static int exynos4_mmc_config(int peripheral, int flags)
 		bank = &gpio2->k0;
 		bank_ext = &gpio2->k1;
 		channel = 4;
+		break;
 	default:
 		return -1;
 	}

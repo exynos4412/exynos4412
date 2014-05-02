@@ -138,16 +138,21 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 	/* SPI multiblock writes terminate using a special
 	 * token, not a STOP_TRANSMISSION request.
 	 */
-	if (!mmc_host_is_spi(mmc) && blkcnt > 1) {
-		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
-		cmd.cmdarg = 0;
-		cmd.resp_type = MMC_RSP_R1b;
-		if (mmc_send_cmd(mmc, &cmd, NULL)) {
-			printf("mmc fail to send stop cmd\n");
-			return 0;
+#ifdef CONFIG_S5P_MSHCI
+	if(strcmp(mmc->name, "S5P_MSHC0" )){
+#endif
+		if (!mmc_host_is_spi(mmc) && blkcnt > 1) {
+			cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
+			cmd.cmdarg = 0;
+			cmd.resp_type = MMC_RSP_R1b;
+			if (mmc_send_cmd(mmc, &cmd, NULL)) {
+				printf("mmc fail to send stop cmd\n");
+				return 0;
+			}
 		}
+#ifdef CONFIG_S5P_MSHCI
 	}
-
+#endif
 	/* Waiting for the ready status */
 	if (mmc_send_status(mmc, timeout))
 		return 0;
