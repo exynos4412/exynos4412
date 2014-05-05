@@ -103,6 +103,7 @@
 #define CONFIG_S5P_SDHCI
 #define CONFIG_S5P_MSHCI
 #define CONFIG_DEBUG_MMC   //dump mmcinfo
+#define CONFIG_SUPPORT_EMMC_BOOT
 #undef CONFIG_DEBUG_MMC
 /* PWM */
 #define CONFIG_PWM			1

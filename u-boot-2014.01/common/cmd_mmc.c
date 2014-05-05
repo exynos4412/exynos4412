@@ -428,7 +428,7 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(
-	mmc, 6, 1, do_mmcops,
+	mmc, 6, 0, do_mmcops,
 	"MMC sub system",
 	"read addr blk# cnt\n"
 	"mmc write addr blk# cnt\n"

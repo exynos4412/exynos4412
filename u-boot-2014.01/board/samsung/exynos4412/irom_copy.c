@@ -37,7 +37,7 @@ typedef u32 (*copy_sd_mmc_to_mem) \
 #define LoadImageFromUsb()	\
 	(((void(*)())(*((u32 *)LoadImageFromUsb_ADDRESS)))())
 
-#if defined (CONFIG_EXYNOS4212) || defined (CONFIG_ARCH_EXYNOS5)
+#if defined (CONFIG_EXYNOS4212) || defined (CONFIG_ARCH_EXYNOS5) || defined (CONFIG_EXYNOS4412) 
 typedef u32(*MSH_ReadFromFIFO_eMMC)
 (u32 uNumOfBlks, u32 *uDstAddr);
 #else
@@ -91,7 +91,7 @@ void emmc_4_4_uboot_copy(void)
 
 	MSH_EndBootOp_eMMC end_copy =
 	(MSH_EndBootOp_eMMC) (*(u32 *) (MSH_EndBootOp_eMMC_ADDRESS));
-#if defined (CONFIG_EXYNOS4212) || defined (CONFIG_ARCH_EXYNOS5)
+#if defined (CONFIG_EXYNOS4212) || defined (CONFIG_ARCH_EXYNOS5) || defined(CONFIG_EXYNOS4412)
 	bl2_copy(MOVI_UBOOT_BLKCNT, CONFIG_PHY_UBOOT_BASE);
 #ifdef CONFIG_CORTEXA5_ENABLE
 	uboot_memcpy(0x40000000, CONFIG_PHY_UBOOT_BASE, PART_SIZE_UBOOT);

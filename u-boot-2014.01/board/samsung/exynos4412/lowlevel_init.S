@@ -188,11 +188,9 @@ load_boot:
 
 mmcsd_boot: /*mmcsd boot mode*/
 #ifdef CONFIG_DDR_DEBUG
-	mov r0, #'M'
+	mov r0, #'S'
 	bl asm_printc
-	mov r0, #'M'
-	bl asm_printc
-	mov r0, #'C'
+	mov r0, #'D'
 	bl asm_printc
 	mov r0, #'P'
 	bl asm_printc
@@ -216,6 +214,24 @@ emmc_boot: /* emmc boot mode */
 	b	    after_copy
 
 emmc_boot_4_4: /*emmc4.4 boot mode*/
+#ifdef CONFIG_DDR_DEBUG
+	mov r0, #'E'
+	bl asm_printc
+	mov r0, #'M'
+	bl asm_printc
+	mov r0, #'M'
+	bl asm_printc
+	mov r0, #'C'
+	bl asm_printc
+	mov r0, #'P'
+	bl asm_printc
+#endif
+	ldr     r0, =EXYNOS4X12_CLOCK_BASE
+        ldr     r2, =CLK_DIV_FSYS3_OFFSET
+        ldr     r1, [r0, r2]
+        orr r1, r1, #0x3
+        str r1, [r0, r2]
+
 	bl      emmc_4_4_uboot_copy
 	b	    after_copy
 /*

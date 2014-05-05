@@ -210,6 +210,9 @@ $(error could not find linker script)
 	endif
 endif
 
+ifeq ($(CONFIG_SUPPORT_EMMC_BOOT),y)
+BL1=sd_fuse/smdk4412/E4412_N.bl1.bin
+endif
 #########################################################################
 # U-Boot objects....order is important (i.e. start must be first)
 
@@ -385,6 +388,9 @@ $(obj)u-boot.bin:	$(obj)u-boot $(obj)mkbl2
 		$(BOARD_SIZE_CHECK)
 ifeq ($(CONFIG_EXYNOS4412),y)
 		./mkbl2 u-boot.bin bl2.bin 14336
+ifeq ($(CONFIG_SUPPORT_EMMC_BOOT),y)
+		@cat $(BL1) bl2.bin > E4412BL.img
+endif
 endif	
 
 $(obj)u-boot.ldr:	$(obj)u-boot
@@ -830,6 +836,9 @@ clean:
 ifeq ($(CONFIG_EXYNOS4412),y)
 		@-rm bl2.bin mkbl2
 		@-make -C sd_fuse/ clean
+ifeq ($(CONFIG_SUPPORT_EMMC_BOOT),y)
+		@-rm E4412BL.img
+endif
 endif
 
 # Removes everything not needed for testing u-boot
