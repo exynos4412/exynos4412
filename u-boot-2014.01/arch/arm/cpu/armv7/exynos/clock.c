@@ -903,6 +903,8 @@ static void exynos4x12_set_mmc_clk(int dev_index, unsigned int div)
 		(struct exynos4x12_clock *)samsung_get_base_clock();
 	unsigned int addr;
 	unsigned int val;
+	u32 min_div;
+	u32 mpll_clock = get_pll_clk(MPLL);
 
 	/*
 	 * CLK_DIV_FSYS1
@@ -916,10 +918,16 @@ static void exynos4x12_set_mmc_clk(int dev_index, unsigned int div)
 		addr = (unsigned int)&clk->div_fsys2;
 		dev_index -= 2;
 	}
-
+	min_div = mpll_clock /50000000;  //sd clock must less than 50M. we use mclk
+	div = (div > min_div ?div:min_div);
 	val = readl(addr);
+#if 0
 	val &= ~(0xff << ((dev_index << 4) + 8));
 	val |= (div & 0xff) << ((dev_index << 4) + 8);
+#else
+	val &= ~(0xff0f << (dev_index << 4));
+	val |= (div & 0xff) << ((dev_index << 4) + 8);
+#endif
 	writel(val, addr);
 }
 
