@@ -104,9 +104,14 @@ static inline int write_env(struct mmc *mmc, unsigned long size,
 
 	blk_start	= ALIGN(offset, mmc->write_bl_len) / mmc->write_bl_len;
 	blk_cnt		= ALIGN(size, mmc->write_bl_len) / mmc->write_bl_len;
-
+#ifdef CONFIG_ENV_IN_BOOTPART
+	run_command("mmc open 0 1", 0);
+#endif
 	n = mmc->block_dev.block_write(CONFIG_SYS_MMC_ENV_DEV, blk_start,
 					blk_cnt, (u_char *)buffer);
+#ifdef CONFIG_ENV_IN_BOOTPART
+	run_command("mmc close 0 1", 0);
+#endif
 
 	return (n == blk_cnt) ? 0 : -1;
 }
@@ -177,9 +182,14 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
 
 	blk_start	= ALIGN(offset, mmc->read_bl_len) / mmc->read_bl_len;
 	blk_cnt		= ALIGN(size, mmc->read_bl_len) / mmc->read_bl_len;
-
+#ifdef CONFIG_ENV_IN_BOOTPART
+	run_command("mmc open 0 1", 0);
+#endif
 	n = mmc->block_dev.block_read(CONFIG_SYS_MMC_ENV_DEV, blk_start,
 					blk_cnt, (uchar *)buffer);
+#ifdef CONFIG_ENV_IN_BOOTPART
+	run_command("mmc close 0 1", 0);
+#endif
 
 	return (n == blk_cnt) ? 0 : -1;
 }
