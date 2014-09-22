@@ -389,6 +389,7 @@ $(obj)u-boot.bin:	$(obj)u-boot $(obj)mkbl2
 ifeq ($(CONFIG_EXYNOS4412),y)
 		./mkbl2 u-boot.bin bl2.bin 14336
 ifeq ($(CONFIG_SUPPORT_EMMC_BOOT),y)
+		@git checkout $(SRCTREE)/sd_fuse/smdk4412
 		@cat $(BL1) bl2.bin > E4412BL.img
 endif
 endif	
