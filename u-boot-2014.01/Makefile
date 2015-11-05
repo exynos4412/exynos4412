@@ -836,12 +836,14 @@ clean:
 		| xargs rm -f
 ifeq ($(CONFIG_EXYNOS4412),y)
 		@-rm bl2.bin mkbl2
-		@-make -C sd_fuse/ clean
+		@-make -s -C sd_fuse/ clean
 ifeq ($(CONFIG_SUPPORT_EMMC_BOOT),y)
 		@-rm E4412BL.img
 endif
 endif
-
+ifeq ($(CONFIG_SPL), y)
+	@$(MAKE) -s -C spl clean
+endif
 # Removes everything not needed for testing u-boot
 tidy:	clean
 	@find $(OBJTREE) -type f \( -name '*.depend*' \) -print | xargs rm -f
