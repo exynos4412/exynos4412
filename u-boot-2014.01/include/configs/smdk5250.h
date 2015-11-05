@@ -13,5 +13,5 @@
 
 #undef CONFIG_DEFAULT_DEVICE_TREE
 #define CONFIG_DEFAULT_DEVICE_TREE	exynos5250-smdk5250
-
+#define CFG_PARTITION_START                    (0x4000000)   //add by jf.s
 #endif	/* __CONFIG_SMDK_H */

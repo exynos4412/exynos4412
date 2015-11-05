@@ -49,6 +49,7 @@
 
 /* Sound */
 #define CONFIG_CMD_SOUND
+#undef CONFIG_CMD_SOUND  //add by jf.s
 #ifdef CONFIG_CMD_SOUND
 #define CONFIG_SOUND
 #define CONFIG_I2S
