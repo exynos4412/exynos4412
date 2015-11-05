@@ -187,5 +187,9 @@ $(obj)u-boot-spl.lds: $(LDSCRIPT) depend
 depend:	$(obj).depend
 .PHONY: depend
 
+.PHONY: clean
+clean:
+	@$(shell rm -fr $(filter-out Makefile, $(shell ls)))
+	@find $(shell pwd) -type f \( -name '*.depend*' \) -print | xargs rm -f
 # defines $(obj).depend target
 include $(SRCTREE)/rules.mk
